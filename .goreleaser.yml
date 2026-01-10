@@ -1,0 +1,177 @@
+version: 2
+
+before:
+  hooks:
+    # Install protoc-gen-go
+    - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+    # Generate protobuf files
+    - protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path=proto proto/jira.proto proto/beads.proto
+    # Run tests
+    - go test ./...
+    # Tidy dependencies
+    - go mod tidy
+
+builds:
+  - id: jira-to-beads
+    main: ./cmd/jira-to-beads
+    binary: jira-to-beads
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+archives:
+  - id: default
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+      - CLAUDE.md
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - 'typo'
+  groups:
+    - title: Features
+      regexp: '^feat:'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^fix:'
+      order: 1
+    - title: Others
+      order: 999
+
+release:
+  github:
+    owner: conallob
+    name: jira-to-beads
+  draft: false
+  prerelease: auto
+  mode: replace
+  name_template: "Release {{.Tag}}"
+  header: |
+    ## What's Changed
+
+    Jira to Beads Converter - Convert Jira task trees to beads issues.
+
+    ### Installation
+
+    Download the appropriate binary for your system from the assets below.
+
+    **macOS:**
+    ```bash
+    # For Apple Silicon (M1/M2/M3)
+    curl -LO https://github.com/conallob/jira-to-beads/releases/download/{{ .Tag }}/jira-to-beads_{{ .Version }}_Darwin_arm64.tar.gz
+    tar xzf jira-to-beads_{{ .Version }}_Darwin_arm64.tar.gz
+    sudo mv jira-to-beads /usr/local/bin/
+
+    # For Intel
+    curl -LO https://github.com/conallob/jira-to-beads/releases/download/{{ .Tag }}/jira-to-beads_{{ .Version }}_Darwin_x86_64.tar.gz
+    tar xzf jira-to-beads_{{ .Version }}_Darwin_x86_64.tar.gz
+    sudo mv jira-to-beads /usr/local/bin/
+    ```
+
+    **Linux:**
+    ```bash
+    # For x86_64
+    curl -LO https://github.com/conallob/jira-to-beads/releases/download/{{ .Tag }}/jira-to-beads_{{ .Version }}_Linux_x86_64.tar.gz
+    tar xzf jira-to-beads_{{ .Version }}_Linux_x86_64.tar.gz
+    sudo mv jira-to-beads /usr/local/bin/
+
+    # For ARM64
+    curl -LO https://github.com/conallob/jira-to-beads/releases/download/{{ .Tag }}/jira-to-beads_{{ .Version }}_Linux_arm64.tar.gz
+    tar xzf jira-to-beads_{{ .Version }}_Linux_arm64.tar.gz
+    sudo mv jira-to-beads /usr/local/bin/
+    ```
+
+    **Windows:**
+    Download the `.zip` file for your architecture and extract it.
+
+    ### Usage
+
+    ```bash
+    jira-to-beads convert jira-export.json
+    ```
+
+brews:
+  - name: jira-to-beads
+    repository:
+      owner: conallob
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/conallob/jira-to-beads"
+    description: "Convert Jira task trees to beads issues"
+    license: "Apache-2.0"
+    install: |
+      bin.install "jira-to-beads"
+    test: |
+      system "#{bin}/jira-to-beads version"
+
+dockers:
+  - image_templates:
+      - "ghcr.io/conallob/jira-to-beads:{{ .Version }}-amd64"
+      - "ghcr.io/conallob/jira-to-beads:latest-amd64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+
+  - image_templates:
+      - "ghcr.io/conallob/jira-to-beads:{{ .Version }}-arm64"
+      - "ghcr.io/conallob/jira-to-beads:latest-arm64"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+
+docker_manifests:
+  - name_template: "ghcr.io/conallob/jira-to-beads:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/conallob/jira-to-beads:{{ .Version }}-amd64"
+      - "ghcr.io/conallob/jira-to-beads:{{ .Version }}-arm64"
+
+  - name_template: "ghcr.io/conallob/jira-to-beads:latest"
+    image_templates:
+      - "ghcr.io/conallob/jira-to-beads:latest-amd64"
+      - "ghcr.io/conallob/jira-to-beads:latest-arm64"

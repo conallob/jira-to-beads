@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package jira;
+
+option go_package = "github.com/conallob/jira-to-beads/gen/jira";
+
+import "google/protobuf/timestamp.proto";
+
+// Export represents a Jira export file containing multiple issues
+message Export {
+  repeated Issue issues = 1;
+}
+
+// Issue represents a Jira issue (story, epic, subtask, etc.)
+message Issue {
+  string id = 1;
+  string key = 2;
+  string self = 3;
+  Fields fields = 4;
+}
+
+// Fields contains the detailed information about a Jira issue
+message Fields {
+  string summary = 1;
+  string description = 2;
+  IssueType issue_type = 3;
+  Status status = 4;
+  Priority priority = 5;
+  User assignee = 6;
+  User reporter = 7;
+  google.protobuf.Timestamp created = 8;
+  google.protobuf.Timestamp updated = 9;
+  repeated string labels = 10;
+  repeated IssueLink issue_links = 11;
+  Parent parent = 12;
+  Epic epic = 13;
+  repeated Subtask subtasks = 14;
+}
+
+// IssueType represents the type of a Jira issue
+message IssueType {
+  string name = 1;
+  string description = 2;
+  bool subtask = 3;
+}
+
+// Status represents the current status of a Jira issue
+message Status {
+  string name = 1;
+  StatusCategory status_category = 2;
+}
+
+// StatusCategory represents the high-level category of a status
+message StatusCategory {
+  string key = 1;  // "new", "indeterminate", "done"
+  string name = 2;
+}
+
+// Priority represents the priority of a Jira issue
+message Priority {
+  string name = 1;
+  string id = 2;
+}
+
+// User represents a Jira user
+message User {
+  string account_id = 1;
+  string display_name = 2;
+  string email_address = 3;
+}
+
+// IssueLink represents a link between two Jira issues
+message IssueLink {
+  string id = 1;
+  IssueLinkType type = 2;
+  LinkedIssue inward_issue = 3;
+  LinkedIssue outward_issue = 4;
+}
+
+// IssueLinkType describes the type of relationship between issues
+message IssueLinkType {
+  string name = 1;
+  string inward = 2;   // e.g., "is blocked by"
+  string outward = 3;  // e.g., "blocks"
+}
+
+// LinkedIssue represents a reference to another issue in a link
+message LinkedIssue {
+  string id = 1;
+  string key = 2;
+  string self = 3;
+  LinkedFields fields = 4;
+}
+
+// LinkedFields contains minimal fields for a linked issue
+message LinkedFields {
+  string summary = 1;
+  Status status = 2;
+  IssueType issue_type = 3;
+}
+
+// Parent represents a parent issue reference
+message Parent {
+  string id = 1;
+  string key = 2;
+  string self = 3;
+  LinkedFields fields = 4;
+}
+
+// Epic represents an epic reference
+message Epic {
+  string id = 1;
+  string key = 2;
+  string self = 3;
+  string name = 4;
+  string summary = 5;
+  bool done = 6;
+}
+
+// Subtask represents a subtask reference
+message Subtask {
+  string id = 1;
+  string key = 2;
+  string self = 3;
+  LinkedFields fields = 4;
+}

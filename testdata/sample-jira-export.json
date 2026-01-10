@@ -1,0 +1,295 @@
+{
+  "issues": [
+    {
+      "id": "10001",
+      "key": "PROJ-1",
+      "self": "https://jira.example.com/rest/api/2/issue/10001",
+      "fields": {
+        "summary": "Implement User Authentication",
+        "description": "Add authentication system with login and signup",
+        "issuetype": {
+          "name": "Epic",
+          "description": "A big user story that needs to be broken down",
+          "subtask": false
+        },
+        "status": {
+          "name": "In Progress",
+          "statusCategory": {
+            "key": "indeterminate",
+            "name": "In Progress"
+          }
+        },
+        "priority": {
+          "name": "High",
+          "id": "2"
+        },
+        "assignee": {
+          "accountId": "123456",
+          "displayName": "John Doe",
+          "emailAddress": "john@example.com"
+        },
+        "reporter": {
+          "accountId": "123456",
+          "displayName": "John Doe",
+          "emailAddress": "john@example.com"
+        },
+        "created": "2024-01-01T10:00:00.000+0000",
+        "updated": "2024-01-05T14:30:00.000+0000",
+        "labels": ["authentication", "security"],
+        "issuelinks": [],
+        "subtasks": [
+          {
+            "id": "10002",
+            "key": "PROJ-2",
+            "self": "https://jira.example.com/rest/api/2/issue/10002",
+            "fields": {
+              "summary": "Create login API endpoint",
+              "status": {
+                "name": "To Do",
+                "statusCategory": {
+                  "key": "new",
+                  "name": "To Do"
+                }
+              },
+              "issuetype": {
+                "name": "Subtask",
+                "description": "A subtask of another issue",
+                "subtask": true
+              }
+            }
+          },
+          {
+            "id": "10003",
+            "key": "PROJ-3",
+            "self": "https://jira.example.com/rest/api/2/issue/10003",
+            "fields": {
+              "summary": "Create signup API endpoint",
+              "status": {
+                "name": "To Do",
+                "statusCategory": {
+                  "key": "new",
+                  "name": "To Do"
+                }
+              },
+              "issuetype": {
+                "name": "Subtask",
+                "description": "A subtask of another issue",
+                "subtask": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "10002",
+      "key": "PROJ-2",
+      "self": "https://jira.example.com/rest/api/2/issue/10002",
+      "fields": {
+        "summary": "Create login API endpoint",
+        "description": "Implement POST /api/login endpoint",
+        "issuetype": {
+          "name": "Subtask",
+          "description": "A subtask of another issue",
+          "subtask": true
+        },
+        "status": {
+          "name": "To Do",
+          "statusCategory": {
+            "key": "new",
+            "name": "To Do"
+          }
+        },
+        "priority": {
+          "name": "High",
+          "id": "2"
+        },
+        "assignee": {
+          "accountId": "123456",
+          "displayName": "John Doe"
+        },
+        "reporter": {
+          "accountId": "123456",
+          "displayName": "John Doe"
+        },
+        "created": "2024-01-02T10:00:00.000+0000",
+        "updated": "2024-01-02T10:00:00.000+0000",
+        "labels": ["api", "backend"],
+        "issuelinks": [
+          {
+            "id": "10101",
+            "type": {
+              "name": "Blocks",
+              "inward": "is blocked by",
+              "outward": "blocks"
+            },
+            "inwardIssue": {
+              "id": "10004",
+              "key": "PROJ-4",
+              "self": "https://jira.example.com/rest/api/2/issue/10004",
+              "fields": {
+                "summary": "Setup database schema",
+                "status": {
+                  "name": "Done",
+                  "statusCategory": {
+                    "key": "done",
+                    "name": "Done"
+                  }
+                },
+                "issuetype": {
+                  "name": "Task",
+                  "description": "A task that needs to be done",
+                  "subtask": false
+                }
+              }
+            }
+          }
+        ],
+        "parent": {
+          "id": "10001",
+          "key": "PROJ-1",
+          "self": "https://jira.example.com/rest/api/2/issue/10001",
+          "fields": {
+            "summary": "Implement User Authentication",
+            "status": {
+              "name": "In Progress",
+              "statusCategory": {
+                "key": "indeterminate",
+                "name": "In Progress"
+              }
+            },
+            "issuetype": {
+              "name": "Epic",
+              "description": "A big user story",
+              "subtask": false
+            }
+          }
+        },
+        "subtasks": []
+      }
+    },
+    {
+      "id": "10003",
+      "key": "PROJ-3",
+      "self": "https://jira.example.com/rest/api/2/issue/10003",
+      "fields": {
+        "summary": "Create signup API endpoint",
+        "description": "Implement POST /api/signup endpoint",
+        "issuetype": {
+          "name": "Subtask",
+          "description": "A subtask of another issue",
+          "subtask": true
+        },
+        "status": {
+          "name": "To Do",
+          "statusCategory": {
+            "key": "new",
+            "name": "To Do"
+          }
+        },
+        "priority": {
+          "name": "Medium",
+          "id": "3"
+        },
+        "assignee": null,
+        "reporter": {
+          "accountId": "123456",
+          "displayName": "John Doe"
+        },
+        "created": "2024-01-02T11:00:00.000+0000",
+        "updated": "2024-01-02T11:00:00.000+0000",
+        "labels": ["api", "backend"],
+        "issuelinks": [],
+        "parent": {
+          "id": "10001",
+          "key": "PROJ-1",
+          "self": "https://jira.example.com/rest/api/2/issue/10001",
+          "fields": {
+            "summary": "Implement User Authentication",
+            "status": {
+              "name": "In Progress",
+              "statusCategory": {
+                "key": "indeterminate",
+                "name": "In Progress"
+              }
+            },
+            "issuetype": {
+              "name": "Epic",
+              "description": "A big user story",
+              "subtask": false
+            }
+          }
+        },
+        "subtasks": []
+      }
+    },
+    {
+      "id": "10004",
+      "key": "PROJ-4",
+      "self": "https://jira.example.com/rest/api/2/issue/10004",
+      "fields": {
+        "summary": "Setup database schema",
+        "description": "Create users table and related tables",
+        "issuetype": {
+          "name": "Task",
+          "description": "A task that needs to be done",
+          "subtask": false
+        },
+        "status": {
+          "name": "Done",
+          "statusCategory": {
+            "key": "done",
+            "name": "Done"
+          }
+        },
+        "priority": {
+          "name": "High",
+          "id": "2"
+        },
+        "assignee": {
+          "accountId": "654321",
+          "displayName": "Jane Smith",
+          "emailAddress": "jane@example.com"
+        },
+        "reporter": {
+          "accountId": "123456",
+          "displayName": "John Doe"
+        },
+        "created": "2024-01-01T09:00:00.000+0000",
+        "updated": "2024-01-03T16:00:00.000+0000",
+        "labels": ["database", "infrastructure"],
+        "issuelinks": [
+          {
+            "id": "10101",
+            "type": {
+              "name": "Blocks",
+              "inward": "is blocked by",
+              "outward": "blocks"
+            },
+            "outwardIssue": {
+              "id": "10002",
+              "key": "PROJ-2",
+              "self": "https://jira.example.com/rest/api/2/issue/10002",
+              "fields": {
+                "summary": "Create login API endpoint",
+                "status": {
+                  "name": "To Do",
+                  "statusCategory": {
+                    "key": "new",
+                    "name": "To Do"
+                  }
+                },
+                "issuetype": {
+                  "name": "Subtask",
+                  "description": "A subtask of another issue",
+                  "subtask": true
+                }
+              }
+            }
+          }
+        ],
+        "subtasks": []
+      }
+    }
+  ]
+}

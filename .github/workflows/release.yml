@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Install protoc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+
+    - name: Install protoc-gen-go
+      run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+
+    - name: Generate protobuf files
+      run: protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path=proto proto/jira.proto proto/beads.proto
+
+    - name: Run tests
+      run: go test -v ./...
+
+    - name: Install GoReleaser
+      uses: goreleaser/goreleaser-action@v6
+      with:
+        distribution: goreleaser
+        version: latest
+        install-only: true
+
+    - name: Run GoReleaser
+      run: goreleaser release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

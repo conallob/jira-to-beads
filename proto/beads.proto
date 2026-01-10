@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package beads;
+
+option go_package = "github.com/conallob/jira-to-beads/gen/beads";
+
+import "google/protobuf/timestamp.proto";
+
+// Issue represents a beads issue stored as YAML in .beads/issues/
+message Issue {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  Status status = 4;
+  Priority priority = 5;
+  string epic = 6;
+  string assignee = 7;
+  repeated string labels = 8;
+  repeated string depends_on = 9;
+  google.protobuf.Timestamp created = 10;
+  google.protobuf.Timestamp updated = 11;
+  Metadata metadata = 12;
+}
+
+// Status represents the status of a beads issue
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_OPEN = 1;
+  STATUS_IN_PROGRESS = 2;
+  STATUS_BLOCKED = 3;
+  STATUS_CLOSED = 4;
+}
+
+// Priority represents the priority level of a beads issue
+enum Priority {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_P0 = 1;  // Critical
+  PRIORITY_P1 = 2;  // High
+  PRIORITY_P2 = 3;  // Medium
+  PRIORITY_P3 = 4;  // Low
+  PRIORITY_P4 = 5;  // Very Low
+}
+
+// Metadata stores additional information about the issue
+message Metadata {
+  string jira_key = 1;
+  string jira_id = 2;
+  string jira_issue_type = 3;
+  map<string, string> custom = 4;
+}
+
+// Epic represents a beads epic
+message Epic {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  Status status = 4;
+  google.protobuf.Timestamp created = 5;
+  google.protobuf.Timestamp updated = 6;
+  Metadata metadata = 7;
+}
+
+// Export represents a collection of beads issues and epics for export
+message Export {
+  repeated Issue issues = 1;
+  repeated Epic epics = 2;
+}
