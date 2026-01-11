@@ -7,7 +7,7 @@ Thank you for your interest in contributing! This document provides guidelines a
 ### Prerequisites
 
 - Go 1.21 or later
-- Protocol Buffers compiler (`protoc`) version 3.x or later
+- Protocol Buffers compiler (`protoc`) version 33.2 (to ensure consistency with CI)
 - `protoc-gen-go` plugin
 - `golangci-lint` for code linting
 - Make (optional, but recommended)
