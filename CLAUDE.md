@@ -157,3 +157,53 @@ The tool uses Jira REST API v2 for fetching issues:
 Key files:
 - `internal/jira/client.go`: Jira API client with recursive dependency walking
 - `internal/config/config.go`: Configuration management
+
+## Claude Code Plugin
+
+This repository includes a Claude Code plugin that enables importing Jira issues through natural language commands or slash commands.
+
+### Plugin Commands
+
+- `/import-jira <jira-url-or-key>` - Import a Jira issue and its dependency tree
+- `/configure-jira` - Configure Jira API credentials
+- `/convert-jira-export <file>` - Convert a Jira export JSON file
+
+### Natural Language Usage
+
+Claude can understand requests like:
+- "Import PROJ-123 from Jira"
+- "Fetch the Jira issue TEAM-456 and all its dependencies"
+- "Configure my Jira credentials"
+- "Convert jira-export.json to beads format"
+
+### Using in Your Project
+
+Add to your project's `.claude/CLAUDE.md`:
+
+```markdown
+# Jira Integration
+
+When working on Jira issues, import them into beads:
+- Import: Ask Claude to "import <jira-key> from Jira"
+- View: Use `bd list` and `bd show <id>` to see imported issues
+- The tool automatically fetches all dependencies and related issues
+```
+
+### Plugin Installation
+
+For users:
+```bash
+# Install the CLI tool first
+go install github.com/conallob/jira-to-beads/cmd/jira-to-beads@latest
+
+# Start Claude with plugin enabled
+claude --plugin-dir /path/to/jira-to-beads
+```
+
+For development:
+```bash
+# From this repository
+claude --plugin-dir .
+```
+
+See [PLUGIN.md](PLUGIN.md) for complete plugin documentation.

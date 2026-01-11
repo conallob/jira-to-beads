@@ -9,6 +9,7 @@ A Go-based CLI tool to convert Jira task trees into beads issues. This tool hand
 
 ## Features
 
+- **Claude Code Plugin**: Import Jira issues through natural language with Claude Code
 - **Quickstart Mode**: Fetch issues directly from Jira with a single command
 - **Dependency Graph Walking**: Automatically fetch and convert entire task hierarchies
 - **Protocol Buffers Architecture**: Uses protobuf as internal data format with YAML rendering layer
@@ -142,6 +143,22 @@ jira-to-beads version
 # Show help
 jira-to-beads help
 ```
+
+## Claude Code Plugin
+
+This tool can be used as a Claude Code plugin to import Jira issues through natural language:
+
+```bash
+# Install and start Claude with plugin
+claude --plugin-dir /path/to/jira-to-beads
+```
+
+Then use natural language commands:
+- "Import PROJ-123 from Jira"
+- "Fetch the Jira issue TEAM-456 and all its dependencies"
+- "Configure my Jira credentials"
+
+See [PLUGIN.md](PLUGIN.md) for complete plugin documentation and usage examples.
 
 ## Development
 

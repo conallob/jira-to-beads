@@ -1,0 +1,24 @@
+{
+  "name": "jira-to-beads",
+  "description": "Import Jira issues and task trees into beads issue tracker. Fetch issues directly from Jira API or convert exported JSON files.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Conall O'Brien",
+    "url": "https://github.com/conallob"
+  },
+  "repository": "https://github.com/conallob/jira-to-beads",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/conallob/jira-to-beads",
+  "keywords": [
+    "jira",
+    "beads",
+    "issue-tracker",
+    "task-management",
+    "import",
+    "conversion"
+  ],
+  "requirements": {
+    "commands": ["jira-to-beads"],
+    "plugins": ["beads@beads-marketplace"]
+  }
+}
