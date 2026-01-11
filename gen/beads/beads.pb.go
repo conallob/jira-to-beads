@@ -536,7 +536,7 @@ const file_beads_proto_rawDesc = "" +
 	"\vPRIORITY_P1\x10\x02\x12\x0f\n" +
 	"\vPRIORITY_P2\x10\x03\x12\x0f\n" +
 	"\vPRIORITY_P3\x10\x04\x12\x0f\n" +
-	"\vPRIORITY_P4\x10\x05B-Z+github.com/conallob/jira-to-beads/gen/beadsb\x06proto3"
+	"\vPRIORITY_P4\x10\x05B/Z-github.com/conallob/jira-beads-sync/gen/beadsb\x06proto3"
 
 var (
 	file_beads_proto_rawDescOnce sync.Once

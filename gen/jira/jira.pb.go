@@ -1136,7 +1136,7 @@ const file_jira_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
 	"\x03key\x18\x02 \x01(\tR\x03key\x12\x12\n" +
 	"\x04self\x18\x03 \x01(\tR\x04self\x12*\n" +
-	"\x06fields\x18\x04 \x01(\v2\x12.jira.LinkedFieldsR\x06fieldsB,Z*github.com/conallob/jira-to-beads/gen/jirab\x06proto3"
+	"\x06fields\x18\x04 \x01(\v2\x12.jira.LinkedFieldsR\x06fieldsB.Z,github.com/conallob/jira-beads-sync/gen/jirab\x06proto3"
 
 var (
 	file_jira_proto_rawDescOnce sync.Once
