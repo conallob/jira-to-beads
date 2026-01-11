@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Go-based CLI tool to convert Jira task trees into beads issues. It handles the hierarchical structure of Jira tasks (epics, stories, subtasks) and maps them to the beads issue tracking system while preserving dependencies and relationships.
 
+The tool supports two modes:
+1. **Quickstart mode**: Fetch issues directly from Jira API and convert them
+2. **Convert mode**: Convert previously exported Jira JSON files
+
 ## Language & Tooling
 
 **Language**: Go (Golang)
@@ -42,10 +46,13 @@ protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path
 
 ### Go Project Structure
 
-- `cmd/jira-to-beads/` - Main application entry point
-- `internal/jira/` - Jira JSON to protobuf adapter
+- `cmd/jira-to-beads/` - Main application entry point with CLI commands
+- `internal/jira/` - Jira integration
+  - `adapter.go` - JSON to protobuf adapter for Jira exports
+  - `client.go` - Jira REST API v2 client for fetching issues
 - `internal/beads/` - YAML rendering layer on top of protobuf
 - `internal/converter/` - Conversion logic between Jira and beads protobuf
+- `internal/config/` - Configuration management (credentials, base URL)
 - `proto/` - Protocol Buffer definitions (source of truth for data structures)
 - `gen/jira/` - Generated Go code from jira.proto
 - `gen/beads/` - Generated Go code from beads.proto
@@ -121,8 +128,32 @@ When implementing new features:
 
 ## Expected Workflow
 
-Users will likely:
-1. Export or fetch Jira tasks via API
+### Quickstart Mode (Recommended)
+Users will:
+1. Configure Jira credentials once: `jira-to-beads configure`
+2. Fetch and convert issues: `jira-to-beads quickstart PROJ-123`
+3. The tool will recursively fetch all dependencies and convert to beads format
+4. Validate that hierarchy and dependencies are correct
+
+### Convert Mode
+Users will:
+1. Export Jira tasks to JSON file
 2. Run this tool to convert the Jira data structure
 3. Import the converted issues into beads system
 4. Validate that hierarchy and dependencies are correct
+
+## Jira API Integration
+
+The tool uses Jira REST API v2 for fetching issues:
+
+- **Authentication**: Basic Auth with username and API token
+- **Configuration**: Supports config file, environment variables, or interactive setup
+- **Recursive Fetching**: Walks dependency graph including:
+  - Subtasks (via `fields.subtasks`)
+  - Linked issues (via `fields.issuelinks`, both inward and outward)
+  - Parent issues (via `fields.parent`, excluding epics)
+- **Duplicate Prevention**: Uses visited map to avoid infinite loops
+
+Key files:
+- `internal/jira/client.go`: Jira API client with recursive dependency walking
+- `internal/config/config.go`: Configuration management

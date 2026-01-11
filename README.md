@@ -9,6 +9,8 @@ A Go-based CLI tool to convert Jira task trees into beads issues. This tool hand
 
 ## Features
 
+- **Quickstart Mode**: Fetch issues directly from Jira with a single command
+- **Dependency Graph Walking**: Automatically fetch and convert entire task hierarchies
 - **Protocol Buffers Architecture**: Uses protobuf as internal data format with YAML rendering layer
 - **Hierarchical Mapping**: Converts Jira epics, stories, and subtasks to beads format
 - **Dependency Preservation**: Maintains issue links and parent-child relationships
@@ -75,10 +77,65 @@ make build
 
 ## Usage
 
+### Quickstart Mode (Recommended)
+
+Fetch issues directly from Jira and convert to beads format:
+
+```bash
+# Configure Jira credentials (one-time setup)
+jira-to-beads configure
+
+# Fetch and convert a Jira issue with its entire dependency graph
+jira-to-beads quickstart https://jira.example.com/browse/PROJ-123
+
+# Or use issue key directly (uses base URL from config)
+jira-to-beads quickstart PROJ-123
+```
+
+The quickstart command will:
+1. Fetch the specified issue from Jira
+2. Recursively walk the dependency graph (subtasks, linked issues, parents)
+3. Convert all issues to beads format
+4. Generate YAML files in `.beads/` directory
+
+### Configuration
+
+Jira credentials can be configured in three ways (in order of precedence):
+
+1. **Interactive configuration:**
+   ```bash
+   jira-to-beads configure
+   ```
+
+2. **Environment variables:**
+   ```bash
+   export JIRA_BASE_URL=https://jira.example.com
+   export JIRA_USERNAME=your-email@example.com
+   export JIRA_API_TOKEN=your-api-token
+   ```
+
+3. **Config file** at `~/.config/jira-to-beads/config.yml`:
+   ```yaml
+   jira:
+     base_url: https://jira.example.com
+     username: your-email@example.com
+     api_token: your-api-token
+   ```
+
+To generate a Jira API token, visit: https://id.atlassian.com/manage-profile/security/api-tokens
+
+### Convert Mode
+
+Convert a previously exported Jira JSON file:
+
 ```bash
 # Convert a Jira export file to beads format
 jira-to-beads convert jira-export.json
+```
 
+### Other Commands
+
+```bash
 # Show version
 jira-to-beads version
 
