@@ -50,6 +50,9 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
+    - name: Configure toolchain
+      run: go env -w GOTOOLCHAIN=go${{ matrix.go-version }}+auto
+
     - name: Run tests
       run: go test -v -race -coverprofile=coverage.out ./...
 
