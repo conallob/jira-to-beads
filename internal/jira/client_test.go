@@ -990,7 +990,8 @@ func TestFetchIssuesByLabel(t *testing.T) {
 	fetchedIssues := make(map[string]bool)
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/rest/api/2/search" {
+		switch r.URL.Path {
+		case "/rest/api/2/search":
 			// Return search results
 			response := map[string]interface{}{
 				"issues": []map[string]interface{}{
@@ -1004,7 +1005,7 @@ func TestFetchIssuesByLabel(t *testing.T) {
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				t.Errorf("Failed to encode response: %v", err)
 			}
-		} else if r.URL.Path == "/rest/api/2/issue/PROJ-100" || r.URL.Path == "/rest/api/2/issue/PROJ-101" {
+		case "/rest/api/2/issue/PROJ-100", "/rest/api/2/issue/PROJ-101":
 			// Fetch individual issues
 			issueKey := r.URL.Path[len("/rest/api/2/issue/"):]
 			fetchedIssues[issueKey] = true
@@ -1047,7 +1048,8 @@ func TestFetchIssuesByLabelWithDependencies(t *testing.T) {
 	fetchedIssues := make(map[string]bool)
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/rest/api/2/search" {
+		switch r.URL.Path {
+		case "/rest/api/2/search":
 			// Return search results
 			response := map[string]interface{}{
 				"issues": []map[string]interface{}{
@@ -1060,7 +1062,7 @@ func TestFetchIssuesByLabelWithDependencies(t *testing.T) {
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				t.Errorf("Failed to encode response: %v", err)
 			}
-		} else {
+		default:
 			// Fetch individual issues
 			issueKey := r.URL.Path[len("/rest/api/2/issue/"):]
 			fetchedIssues[issueKey] = true
