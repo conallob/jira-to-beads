@@ -53,8 +53,13 @@ jobs:
     - name: Configure toolchain
       run: go env -w GOTOOLCHAIN=go${{ matrix.go-version }}+auto
 
-    - name: Run tests
+    - name: Run tests with coverage
+      if: matrix.go-version == '1.25.5'
       run: go test -v -race -coverprofile=coverage.out ./...
+
+    - name: Run tests without coverage
+      if: matrix.go-version != '1.25.5'
+      run: go test -v -race ./...
 
     - name: Upload coverage to Codecov
       if: matrix.go-version == '1.25.5'
