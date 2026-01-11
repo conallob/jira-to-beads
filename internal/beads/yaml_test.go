@@ -265,3 +265,286 @@ func TestPriorityConversion(t *testing.T) {
 		})
 	}
 }
+
+func TestAddRepositoryAnnotation(t *testing.T) {
+	// Create a temporary directory
+	tempDir := t.TempDir()
+
+	renderer := NewYAMLRenderer(tempDir)
+
+	// Create a test issue
+	issue := &pb.Issue{
+		Id:          "test-issue",
+		Title:       "Test Issue",
+		Description: "Test Description",
+		Status:      pb.Status_STATUS_OPEN,
+		Priority:    pb.Priority_PRIORITY_P1,
+		Created:     timestamppb.Now(),
+		Updated:     timestamppb.Now(),
+		Metadata: &pb.Metadata{
+			JiraKey:       "PROJ-123",
+			JiraId:        "10001",
+			JiraIssueType: "Story",
+		},
+	}
+
+	// Render the issue to create the file
+	if err := renderer.RenderIssue(issue); err != nil {
+		t.Fatalf("Failed to render issue: %v", err)
+	}
+
+	// Add a repository annotation
+	repo1 := "https://github.com/org/repo1"
+	if err := renderer.AddRepositoryAnnotation("test-issue", repo1); err != nil {
+		t.Fatalf("Failed to add repository annotation: %v", err)
+	}
+
+	// Parse the issue back
+	filename := filepath.Join(tempDir, ".beads", "issues", "test-issue.yaml")
+	updatedIssue, err := renderer.ParseIssueFile(filename)
+	if err != nil {
+		t.Fatalf("Failed to parse updated issue: %v", err)
+	}
+
+	// Verify the repository was added
+	if len(updatedIssue.Metadata.Repositories) != 1 {
+		t.Fatalf("Expected 1 repository, got %d", len(updatedIssue.Metadata.Repositories))
+	}
+
+	if updatedIssue.Metadata.Repositories[0] != repo1 {
+		t.Errorf("Expected repository '%s', got '%s'", repo1, updatedIssue.Metadata.Repositories[0])
+	}
+}
+
+func TestAddRepositoryAnnotationMultiple(t *testing.T) {
+	tempDir := t.TempDir()
+	renderer := NewYAMLRenderer(tempDir)
+
+	issue := &pb.Issue{
+		Id:       "test-issue",
+		Title:    "Test Issue",
+		Status:   pb.Status_STATUS_OPEN,
+		Priority: pb.Priority_PRIORITY_P2,
+		Created:  timestamppb.Now(),
+		Updated:  timestamppb.Now(),
+		Metadata: &pb.Metadata{
+			JiraKey: "PROJ-456",
+		},
+	}
+
+	if err := renderer.RenderIssue(issue); err != nil {
+		t.Fatalf("Failed to render issue: %v", err)
+	}
+
+	// Add multiple repositories
+	repos := []string{
+		"https://github.com/org/frontend",
+		"https://github.com/org/backend",
+		"https://github.com/org/shared",
+	}
+
+	for _, repo := range repos {
+		if err := renderer.AddRepositoryAnnotation("test-issue", repo); err != nil {
+			t.Fatalf("Failed to add repository %s: %v", repo, err)
+		}
+	}
+
+	// Parse the issue back
+	filename := filepath.Join(tempDir, ".beads", "issues", "test-issue.yaml")
+	updatedIssue, err := renderer.ParseIssueFile(filename)
+	if err != nil {
+		t.Fatalf("Failed to parse updated issue: %v", err)
+	}
+
+	// Verify all repositories were added
+	if len(updatedIssue.Metadata.Repositories) != len(repos) {
+		t.Fatalf("Expected %d repositories, got %d", len(repos), len(updatedIssue.Metadata.Repositories))
+	}
+
+	for i, expectedRepo := range repos {
+		if updatedIssue.Metadata.Repositories[i] != expectedRepo {
+			t.Errorf("Expected repository '%s' at index %d, got '%s'", expectedRepo, i, updatedIssue.Metadata.Repositories[i])
+		}
+	}
+}
+
+func TestAddRepositoryAnnotationDuplicate(t *testing.T) {
+	tempDir := t.TempDir()
+	renderer := NewYAMLRenderer(tempDir)
+
+	issue := &pb.Issue{
+		Id:       "test-issue",
+		Title:    "Test Issue",
+		Status:   pb.Status_STATUS_OPEN,
+		Priority: pb.Priority_PRIORITY_P2,
+		Created:  timestamppb.Now(),
+		Updated:  timestamppb.Now(),
+		Metadata: &pb.Metadata{
+			JiraKey: "PROJ-789",
+		},
+	}
+
+	if err := renderer.RenderIssue(issue); err != nil {
+		t.Fatalf("Failed to render issue: %v", err)
+	}
+
+	repo := "https://github.com/org/repo"
+
+	// Add repository first time
+	if err := renderer.AddRepositoryAnnotation("test-issue", repo); err != nil {
+		t.Fatalf("Failed to add repository: %v", err)
+	}
+
+	// Try to add the same repository again
+	err := renderer.AddRepositoryAnnotation("test-issue", repo)
+	if err == nil {
+		t.Error("Expected error when adding duplicate repository, got nil")
+	}
+
+	expectedError := "already associated with issue"
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Expected error to contain '%s', got '%s'", expectedError, err.Error())
+	}
+}
+
+func TestAddRepositoryAnnotationNonExistentIssue(t *testing.T) {
+	tempDir := t.TempDir()
+	renderer := NewYAMLRenderer(tempDir)
+
+	// Try to annotate an issue that doesn't exist
+	err := renderer.AddRepositoryAnnotation("nonexistent-issue", "https://github.com/org/repo")
+	if err == nil {
+		t.Error("Expected error for non-existent issue, got nil")
+	}
+
+	expectedError := "issue file not found"
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Expected error to contain '%s', got '%s'", expectedError, err.Error())
+	}
+}
+
+func TestAddRepositoryAnnotationWithNilMetadata(t *testing.T) {
+	tempDir := t.TempDir()
+	renderer := NewYAMLRenderer(tempDir)
+
+	// Create issue without metadata
+	issue := &pb.Issue{
+		Id:       "test-issue",
+		Title:    "Test Issue",
+		Status:   pb.Status_STATUS_OPEN,
+		Priority: pb.Priority_PRIORITY_P2,
+		Created:  timestamppb.Now(),
+		Updated:  timestamppb.Now(),
+		// No Metadata field
+	}
+
+	if err := renderer.RenderIssue(issue); err != nil {
+		t.Fatalf("Failed to render issue: %v", err)
+	}
+
+	// Add repository annotation
+	repo := "https://github.com/org/repo"
+	if err := renderer.AddRepositoryAnnotation("test-issue", repo); err != nil {
+		t.Fatalf("Failed to add repository annotation: %v", err)
+	}
+
+	// Parse the issue back
+	filename := filepath.Join(tempDir, ".beads", "issues", "test-issue.yaml")
+	updatedIssue, err := renderer.ParseIssueFile(filename)
+	if err != nil {
+		t.Fatalf("Failed to parse updated issue: %v", err)
+	}
+
+	// Verify metadata was initialized and repository was added
+	if updatedIssue.Metadata == nil {
+		t.Fatal("Expected metadata to be initialized, got nil")
+	}
+
+	if len(updatedIssue.Metadata.Repositories) != 1 {
+		t.Fatalf("Expected 1 repository, got %d", len(updatedIssue.Metadata.Repositories))
+	}
+
+	if updatedIssue.Metadata.Repositories[0] != repo {
+		t.Errorf("Expected repository '%s', got '%s'", repo, updatedIssue.Metadata.Repositories[0])
+	}
+}
+
+func TestAddRepositoryAnnotationPreservesOtherFields(t *testing.T) {
+	tempDir := t.TempDir()
+	renderer := NewYAMLRenderer(tempDir)
+
+	originalIssue := &pb.Issue{
+		Id:          "test-issue",
+		Title:       "Test Issue",
+		Description: "Original description",
+		Status:      pb.Status_STATUS_IN_PROGRESS,
+		Priority:    pb.Priority_PRIORITY_P0,
+		Labels:      []string{"label1", "label2"},
+		DependsOn:   []string{"other-issue"},
+		Created:     timestamppb.Now(),
+		Updated:     timestamppb.Now(),
+		Metadata: &pb.Metadata{
+			JiraKey:       "PROJ-999",
+			JiraId:        "99999",
+			JiraIssueType: "Bug",
+			Custom: map[string]string{
+				"customField1": "value1",
+			},
+		},
+	}
+
+	if err := renderer.RenderIssue(originalIssue); err != nil {
+		t.Fatalf("Failed to render issue: %v", err)
+	}
+
+	// Add repository annotation
+	repo := "https://github.com/org/repo"
+	if err := renderer.AddRepositoryAnnotation("test-issue", repo); err != nil {
+		t.Fatalf("Failed to add repository annotation: %v", err)
+	}
+
+	// Parse the issue back
+	filename := filepath.Join(tempDir, ".beads", "issues", "test-issue.yaml")
+	updatedIssue, err := renderer.ParseIssueFile(filename)
+	if err != nil {
+		t.Fatalf("Failed to parse updated issue: %v", err)
+	}
+
+	// Verify all original fields are preserved
+	if updatedIssue.Title != originalIssue.Title {
+		t.Errorf("Title was modified: expected '%s', got '%s'", originalIssue.Title, updatedIssue.Title)
+	}
+
+	if updatedIssue.Description != originalIssue.Description {
+		t.Errorf("Description was modified: expected '%s', got '%s'", originalIssue.Description, updatedIssue.Description)
+	}
+
+	if updatedIssue.Status != originalIssue.Status {
+		t.Errorf("Status was modified: expected %v, got %v", originalIssue.Status, updatedIssue.Status)
+	}
+
+	if updatedIssue.Priority != originalIssue.Priority {
+		t.Errorf("Priority was modified: expected %v, got %v", originalIssue.Priority, updatedIssue.Priority)
+	}
+
+	if len(updatedIssue.Labels) != len(originalIssue.Labels) {
+		t.Errorf("Labels were modified: expected %d, got %d", len(originalIssue.Labels), len(updatedIssue.Labels))
+	}
+
+	if len(updatedIssue.DependsOn) != len(originalIssue.DependsOn) {
+		t.Errorf("DependsOn was modified: expected %d, got %d", len(originalIssue.DependsOn), len(updatedIssue.DependsOn))
+	}
+
+	if updatedIssue.Metadata.JiraKey != originalIssue.Metadata.JiraKey {
+		t.Errorf("JiraKey was modified: expected '%s', got '%s'", originalIssue.Metadata.JiraKey, updatedIssue.Metadata.JiraKey)
+	}
+
+	// Verify repository was added
+	if len(updatedIssue.Metadata.Repositories) != 1 {
+		t.Fatalf("Expected 1 repository, got %d", len(updatedIssue.Metadata.Repositories))
+	}
+
+	if updatedIssue.Metadata.Repositories[0] != repo {
+		t.Errorf("Expected repository '%s', got '%s'", repo, updatedIssue.Metadata.Repositories[0])
+	}
+}

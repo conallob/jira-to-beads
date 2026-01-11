@@ -47,6 +47,7 @@ message Metadata {
   string jira_id = 2;
   string jira_issue_type = 3;
   map<string, string> custom = 4;
+  repeated string repositories = 5;  // Git repository URLs or names for polyrepo support
 }
 
 // Epic represents a beads epic

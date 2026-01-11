@@ -795,3 +795,397 @@ func createMinimalIssue(key, summary string) map[string]interface{} {
 		},
 	}
 }
+
+func TestSearchIssues(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Verify the request path
+		if r.URL.Path != "/rest/api/2/search" {
+			t.Errorf("Expected path '/rest/api/2/search', got '%s'", r.URL.Path)
+		}
+
+		// Verify authentication
+		username, password, ok := r.BasicAuth()
+		if !ok {
+			t.Error("Expected Basic Auth to be present")
+		}
+		if username != "user@example.com" {
+			t.Errorf("Expected username 'user@example.com', got '%s'", username)
+		}
+		if password != "token123" {
+			t.Errorf("Expected password 'token123', got '%s'", password)
+		}
+
+		// Return mock search results
+		response := map[string]interface{}{
+			"issues": []map[string]interface{}{
+				{"key": "PROJ-100"},
+				{"key": "PROJ-101"},
+				{"key": "PROJ-102"},
+			},
+			"total": 3,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	issueKeys, err := client.SearchIssues("project = PROJ")
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	if len(issueKeys) != 3 {
+		t.Errorf("Expected 3 issue keys, got %d", len(issueKeys))
+	}
+
+	expectedKeys := []string{"PROJ-100", "PROJ-101", "PROJ-102"}
+	for i, key := range expectedKeys {
+		if issueKeys[i] != key {
+			t.Errorf("Expected key '%s' at index %d, got '%s'", key, i, issueKeys[i])
+		}
+	}
+}
+
+func TestSearchIssuesWithPagination(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Simulate pagination warning
+		response := map[string]interface{}{
+			"issues": []map[string]interface{}{
+				{"key": "PROJ-1"},
+				{"key": "PROJ-2"},
+			},
+			"total": 1500, // More than maxResults
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	issueKeys, err := client.SearchIssues("project = PROJ")
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	// Should still return the issues, just with a warning
+	if len(issueKeys) != 2 {
+		t.Errorf("Expected 2 issue keys, got %d", len(issueKeys))
+	}
+}
+
+func TestSearchIssuesByLabel(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check that the JQL query is properly quoted
+		jql := r.URL.Query().Get("jql")
+		if jql != `labels = "sprint-23"` {
+			t.Errorf("Expected JQL 'labels = \"sprint-23\"', got '%s'", jql)
+		}
+
+		response := map[string]interface{}{
+			"issues": []map[string]interface{}{
+				{"key": "PROJ-100"},
+				{"key": "PROJ-101"},
+			},
+			"total": 2,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	issueKeys, err := client.SearchIssuesByLabel("sprint-23")
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	if len(issueKeys) != 2 {
+		t.Errorf("Expected 2 issue keys, got %d", len(issueKeys))
+	}
+}
+
+func TestSearchIssuesByLabelWithSpaces(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check that labels with spaces are properly quoted
+		jql := r.URL.Query().Get("jql")
+		if jql != `labels = "my feature"` {
+			t.Errorf("Expected JQL 'labels = \"my feature\"', got '%s'", jql)
+		}
+
+		response := map[string]interface{}{
+			"issues": []map[string]interface{}{
+				{"key": "PROJ-200"},
+			},
+			"total": 1,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	issueKeys, err := client.SearchIssuesByLabel("my feature")
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	if len(issueKeys) != 1 {
+		t.Errorf("Expected 1 issue key, got %d", len(issueKeys))
+	}
+}
+
+func TestSearchIssuesByLabelWithQuotes(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check that quotes in labels are escaped
+		jql := r.URL.Query().Get("jql")
+		expectedJQL := `labels = "fix \"bug\" here"`
+		if jql != expectedJQL {
+			t.Errorf("Expected JQL '%s', got '%s'", expectedJQL, jql)
+		}
+
+		response := map[string]interface{}{
+			"issues": []map[string]interface{}{
+				{"key": "PROJ-300"},
+			},
+			"total": 1,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	issueKeys, err := client.SearchIssuesByLabel(`fix "bug" here`)
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	if len(issueKeys) != 1 {
+		t.Errorf("Expected 1 issue key, got %d", len(issueKeys))
+	}
+}
+
+func TestFetchIssuesByLabel(t *testing.T) {
+	fetchedIssues := make(map[string]bool)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/rest/api/2/search":
+			// Return search results
+			response := map[string]interface{}{
+				"issues": []map[string]interface{}{
+					{"key": "PROJ-100"},
+					{"key": "PROJ-101"},
+				},
+				"total": 2,
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Errorf("Failed to encode response: %v", err)
+			}
+		case "/rest/api/2/issue/PROJ-100", "/rest/api/2/issue/PROJ-101":
+			// Fetch individual issues
+			issueKey := r.URL.Path[len("/rest/api/2/issue/"):]
+			fetchedIssues[issueKey] = true
+
+			response := createMinimalIssue(issueKey, fmt.Sprintf("Issue %s", issueKey))
+
+			w.Header().Set("Content-Type", "application/json")
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Errorf("Failed to encode response: %v", err)
+			}
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	export, err := client.FetchIssuesByLabel("sprint-23")
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	if export == nil {
+		t.Fatal("Expected export to be returned, got nil")
+	}
+
+	if len(export.Issues) != 2 {
+		t.Errorf("Expected 2 issues, got %d", len(export.Issues))
+	}
+
+	// Verify both issues were fetched
+	if !fetchedIssues["PROJ-100"] {
+		t.Error("Expected PROJ-100 to be fetched")
+	}
+	if !fetchedIssues["PROJ-101"] {
+		t.Error("Expected PROJ-101 to be fetched")
+	}
+}
+
+func TestFetchIssuesByLabelWithDependencies(t *testing.T) {
+	fetchedIssues := make(map[string]bool)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/rest/api/2/search":
+			// Return search results
+			response := map[string]interface{}{
+				"issues": []map[string]interface{}{
+					{"key": "PROJ-100"},
+				},
+				"total": 1,
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Errorf("Failed to encode response: %v", err)
+			}
+		default:
+			// Fetch individual issues
+			issueKey := r.URL.Path[len("/rest/api/2/issue/"):]
+			fetchedIssues[issueKey] = true
+
+			var response map[string]interface{}
+
+			switch issueKey {
+			case "PROJ-100":
+				response = map[string]interface{}{
+					"key": "PROJ-100",
+					"id":  "100",
+					"fields": map[string]interface{}{
+						"summary": "Main issue",
+						"issuetype": map[string]interface{}{
+							"name": "Story",
+						},
+						"status": map[string]interface{}{
+							"name": "Open",
+							"statusCategory": map[string]interface{}{
+								"key": "new",
+							},
+						},
+						"priority": map[string]interface{}{
+							"name": "Medium",
+						},
+						"created": "2024-01-01T10:00:00.000+0000",
+						"updated": "2024-01-01T10:00:00.000+0000",
+						"subtasks": []map[string]interface{}{
+							{"key": "PROJ-101"},
+						},
+					},
+				}
+			case "PROJ-101":
+				response = createMinimalIssue("PROJ-101", "Subtask")
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Errorf("Failed to encode response: %v", err)
+			}
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	export, err := client.FetchIssuesByLabel("sprint-23")
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	// Should have fetched both the labeled issue and its subtask
+	if len(export.Issues) != 2 {
+		t.Errorf("Expected 2 issues (main + subtask), got %d", len(export.Issues))
+	}
+
+	// Verify both were fetched
+	if !fetchedIssues["PROJ-100"] {
+		t.Error("Expected PROJ-100 to be fetched")
+	}
+	if !fetchedIssues["PROJ-101"] {
+		t.Error("Expected PROJ-101 (subtask) to be fetched")
+	}
+}
+
+func TestFetchIssuesByLabelNoResults(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Return empty search results
+		response := map[string]interface{}{
+			"issues": []map[string]interface{}{},
+			"total":  0,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	_, err := client.FetchIssuesByLabel("nonexistent-label")
+	if err == nil {
+		t.Error("Expected error for label with no results, got nil")
+	}
+
+	expectedError := "no issues found with label: nonexistent-label"
+	if err.Error() != expectedError {
+		t.Errorf("Expected error '%s', got '%s'", expectedError, err.Error())
+	}
+}
+
+func TestSearchIssuesUnauthorized(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+		if _, err := w.Write([]byte(`{"errorMessages":["Invalid credentials"]}`)); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "badtoken")
+
+	_, err := client.SearchIssues("project = PROJ")
+	if err == nil {
+		t.Error("Expected error for unauthorized request, got nil")
+	}
+}
+
+func TestSearchIssuesInvalidJSON(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := w.Write([]byte(`{invalid json`)); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	_, err := client.SearchIssues("project = PROJ")
+	if err == nil {
+		t.Error("Expected error for invalid JSON, got nil")
+	}
+}

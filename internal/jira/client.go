@@ -182,3 +182,100 @@ func GetBaseURLFromIssueURL(jiraURL string) (string, error) {
 
 	return fmt.Sprintf("%s://%s", u.Scheme, u.Host), nil
 }
+
+// SearchIssuesByLabel fetches all issues with a given label using JQL
+func (c *Client) SearchIssuesByLabel(label string) ([]string, error) {
+	// Build JQL query for label with proper quoting
+	// Escape any quotes in the label value
+	escapedLabel := strings.ReplaceAll(label, `"`, `\"`)
+	jql := fmt.Sprintf(`labels = "%s"`, escapedLabel)
+	return c.SearchIssues(jql)
+}
+
+// SearchIssues performs a JQL search and returns issue keys
+func (c *Client) SearchIssues(jql string) ([]string, error) {
+	// URL encode the JQL query
+	encodedJQL := url.QueryEscape(jql)
+	apiURL := fmt.Sprintf("%s/rest/api/2/search?jql=%s&fields=key&maxResults=1000", c.baseURL, encodedJQL)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.SetBasicAuth(c.username, c.apiToken)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search issues: %w", err)
+	}
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("jira API returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response: %w", err)
+	}
+
+	// Parse search results
+	var searchResult struct {
+		Issues []struct {
+			Key string `json:"key"`
+		} `json:"issues"`
+		Total int `json:"total"`
+	}
+
+	if err := json.Unmarshal(body, &searchResult); err != nil {
+		return nil, fmt.Errorf("failed to parse search results: %w", err)
+	}
+
+	// Extract issue keys
+	issueKeys := make([]string, 0, len(searchResult.Issues))
+	for _, issue := range searchResult.Issues {
+		issueKeys = append(issueKeys, issue.Key)
+	}
+
+	if len(issueKeys) < searchResult.Total {
+		fmt.Printf("⚠ Warning: Retrieved %d of %d total issues (pagination limit)\n", len(issueKeys), searchResult.Total)
+	}
+
+	return issueKeys, nil
+}
+
+// FetchIssuesByLabel fetches all issues with a given label and their dependencies
+func (c *Client) FetchIssuesByLabel(label string) (*pb.Export, error) {
+	fmt.Printf("Searching for issues with label: %s\n", label)
+
+	issueKeys, err := c.SearchIssuesByLabel(label)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search by label: %w", err)
+	}
+
+	if len(issueKeys) == 0 {
+		return nil, fmt.Errorf("no issues found with label: %s", label)
+	}
+
+	fmt.Printf("Found %d issue(s) with label %s\n", len(issueKeys), label)
+	fmt.Println()
+
+	// Fetch all issues and their dependencies
+	visited := make(map[string]bool)
+	issues := make([]*pb.Issue, 0)
+
+	for _, key := range issueKeys {
+		if err := c.fetchRecursive(key, visited, &issues); err != nil {
+			return nil, err
+		}
+	}
+
+	return &pb.Export{Issues: issues}, nil
+}

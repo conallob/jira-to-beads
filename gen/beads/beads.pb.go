@@ -277,6 +277,7 @@ type Metadata struct {
 	JiraId        string                 `protobuf:"bytes,2,opt,name=jira_id,json=jiraId,proto3" json:"jira_id,omitempty"`
 	JiraIssueType string                 `protobuf:"bytes,3,opt,name=jira_issue_type,json=jiraIssueType,proto3" json:"jira_issue_type,omitempty"`
 	Custom        map[string]string      `protobuf:"bytes,4,rep,name=custom,proto3" json:"custom,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Repositories  []string               `protobuf:"bytes,5,rep,name=repositories,proto3" json:"repositories,omitempty"` // Git repository URLs or names for polyrepo support
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -335,6 +336,13 @@ func (x *Metadata) GetJiraIssueType() string {
 func (x *Metadata) GetCustom() map[string]string {
 	if x != nil {
 		return x.Custom
+	}
+	return nil
+}
+
+func (x *Metadata) GetRepositories() []string {
+	if x != nil {
+		return x.Repositories
 	}
 	return nil
 }
@@ -504,12 +512,13 @@ const file_beads_proto_rawDesc = "" +
 	"\acreated\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\acreated\x124\n" +
 	"\aupdated\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\aupdated\x12+\n" +
-	"\bmetadata\x18\f \x01(\v2\x0f.beads.MetadataR\bmetadata\"\xd6\x01\n" +
+	"\bmetadata\x18\f \x01(\v2\x0f.beads.MetadataR\bmetadata\"\xfa\x01\n" +
 	"\bMetadata\x12\x19\n" +
 	"\bjira_key\x18\x01 \x01(\tR\ajiraKey\x12\x17\n" +
 	"\ajira_id\x18\x02 \x01(\tR\x06jiraId\x12&\n" +
 	"\x0fjira_issue_type\x18\x03 \x01(\tR\rjiraIssueType\x123\n" +
-	"\x06custom\x18\x04 \x03(\v2\x1b.beads.Metadata.CustomEntryR\x06custom\x1a9\n" +
+	"\x06custom\x18\x04 \x03(\v2\x1b.beads.Metadata.CustomEntryR\x06custom\x12\"\n" +
+	"\frepositories\x18\x05 \x03(\tR\frepositories\x1a9\n" +
 	"\vCustomEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8c\x02\n" +
