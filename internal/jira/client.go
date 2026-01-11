@@ -210,7 +210,11 @@ func (c *Client) SearchIssues(jql string) ([]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to search issues: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
