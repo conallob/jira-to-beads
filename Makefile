@@ -8,13 +8,13 @@ help: ## Show this help message
 
 proto: ## Generate Go code from protobuf definitions
 	@echo "Generating protobuf files..."
-	@protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path=proto proto/jira.proto proto/beads.proto
+	@protoc --go_out=. --go_opt=module=github.com/conallob/jira-beads-sync --proto_path=proto proto/jira.proto proto/beads.proto
 	@echo "Protobuf generation complete"
 
 build: proto ## Build the binary
-	@echo "Building jira-to-beads..."
-	@go build -o jira-to-beads ./cmd/jira-to-beads
-	@echo "Build complete: ./jira-to-beads"
+	@echo "Building jira-beads-sync..."
+	@go build -o jira-beads-sync ./cmd/jira-beads-sync
+	@echo "Build complete: ./jira-beads-sync"
 
 test: proto ## Run tests
 	@echo "Running tests..."
@@ -36,7 +36,7 @@ fmt: ## Format code
 
 clean: ## Clean build artifacts
 	@echo "Cleaning..."
-	@rm -f jira-to-beads
+	@rm -f jira-beads-sync
 	@rm -f coverage.out
 	@rm -rf dist/
 	@rm -rf .beads/
@@ -44,7 +44,7 @@ clean: ## Clean build artifacts
 
 install: build ## Install binary to $GOPATH/bin
 	@echo "Installing to $(GOPATH)/bin..."
-	@cp jira-to-beads $(GOPATH)/bin/
+	@cp jira-beads-sync $(GOPATH)/bin/
 	@echo "Installation complete"
 
 release-dry-run: proto ## Test release process without publishing

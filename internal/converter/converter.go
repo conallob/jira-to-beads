@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/conallob/jira-to-beads/internal/beads"
-	"github.com/conallob/jira-to-beads/internal/jira"
+	"github.com/conallob/jira-beads-sync/internal/beads"
+	"github.com/conallob/jira-beads-sync/internal/jira"
 )
 
 // Converter handles converting Jira exports to beads format

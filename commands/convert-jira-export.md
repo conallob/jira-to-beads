@@ -8,7 +8,7 @@ Convert a previously exported Jira JSON file to beads format. This is useful whe
 ## Usage
 
 ```bash
-jira-to-beads convert <jira-export-file>
+jira-beads-sync convert <jira-export-file>
 ```
 
 The command will:
@@ -61,7 +61,7 @@ User: Convert my Jira export file jira-export.json to beads
 
 Claude: I'll convert your Jira export file to beads format.
 
-[Runs: jira-to-beads convert jira-export.json]
+[Runs: jira-beads-sync convert jira-export.json]
 
 Converting jira-export.json to beads format...
 ✓ Conversion complete!

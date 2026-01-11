@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/conallob/jira-to-beads/internal/beads"
-	"github.com/conallob/jira-to-beads/internal/jira"
+	"github.com/conallob/jira-beads-sync/internal/beads"
+	"github.com/conallob/jira-beads-sync/internal/jira"
 )
 
 func TestNewConverter(t *testing.T) {

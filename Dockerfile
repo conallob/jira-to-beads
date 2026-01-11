@@ -4,7 +4,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
-COPY jira-to-beads /usr/local/bin/jira-to-beads
+COPY jira-beads-sync /usr/local/bin/jira-beads-sync
 
-ENTRYPOINT ["jira-to-beads"]
+ENTRYPOINT ["jira-beads-sync"]
 CMD ["help"]

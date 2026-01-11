@@ -1,9 +1,9 @@
-# jira-to-beads
+# jira-beads-sync
 
-[![Test and Lint](https://github.com/conallob/jira-to-beads/actions/workflows/test.yml/badge.svg)](https://github.com/conallob/jira-to-beads/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/conallob/jira-to-beads)](https://goreportcard.com/report/github.com/conallob/jira-to-beads)
-[![License](https://img.shields.io/github/license/conallob/jira-to-beads)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/conallob/jira-to-beads)](https://github.com/conallob/jira-to-beads/releases/latest)
+[![Test and Lint](https://github.com/conallob/jira-beads-sync/actions/workflows/test.yml/badge.svg)](https://github.com/conallob/jira-beads-sync/actions/workflows/test.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/conallob/jira-beads-sync)](https://goreportcard.com/report/github.com/conallob/jira-beads-sync)
+[![License](https://img.shields.io/github/license/conallob/jira-beads-sync)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/conallob/jira-beads-sync)](https://github.com/conallob/jira-beads-sync/releases/latest)
 
 A Go-based CLI tool to convert Jira task trees into beads issues. This tool handles the hierarchical structure of Jira tasks (epics, stories, subtasks) and maps them to the beads issue tracking system while preserving dependencies and relationships.
 
@@ -22,57 +22,57 @@ A Go-based CLI tool to convert Jira task trees into beads issues. This tool hand
 
 ### Download Pre-built Binary
 
-Download the latest release for your platform from the [releases page](https://github.com/conallob/jira-to-beads/releases/latest).
+Download the latest release for your platform from the [releases page](https://github.com/conallob/jira-beads-sync/releases/latest).
 
 **macOS (Homebrew):**
 ```bash
 brew tap conallob/tap
-brew install jira-to-beads
+brew install jira-beads-sync
 ```
 
 **macOS (Manual):**
 ```bash
 # For Apple Silicon (M1/M2/M3)
-curl -LO https://github.com/conallob/jira-to-beads/releases/latest/download/jira-to-beads_Darwin_arm64.tar.gz
-tar xzf jira-to-beads_Darwin_arm64.tar.gz
-sudo mv jira-to-beads /usr/local/bin/
+curl -LO https://github.com/conallob/jira-beads-sync/releases/latest/download/jira-beads-sync_Darwin_arm64.tar.gz
+tar xzf jira-beads-sync_Darwin_arm64.tar.gz
+sudo mv jira-beads-sync /usr/local/bin/
 
 # For Intel
-curl -LO https://github.com/conallob/jira-to-beads/releases/latest/download/jira-to-beads_Darwin_x86_64.tar.gz
-tar xzf jira-to-beads_Darwin_x86_64.tar.gz
-sudo mv jira-to-beads /usr/local/bin/
+curl -LO https://github.com/conallob/jira-beads-sync/releases/latest/download/jira-beads-sync_Darwin_x86_64.tar.gz
+tar xzf jira-beads-sync_Darwin_x86_64.tar.gz
+sudo mv jira-beads-sync /usr/local/bin/
 ```
 
 **Linux:**
 ```bash
 # For x86_64
-curl -LO https://github.com/conallob/jira-to-beads/releases/latest/download/jira-to-beads_Linux_x86_64.tar.gz
-tar xzf jira-to-beads_Linux_x86_64.tar.gz
-sudo mv jira-to-beads /usr/local/bin/
+curl -LO https://github.com/conallob/jira-beads-sync/releases/latest/download/jira-beads-sync_Linux_x86_64.tar.gz
+tar xzf jira-beads-sync_Linux_x86_64.tar.gz
+sudo mv jira-beads-sync /usr/local/bin/
 
 # For ARM64
-curl -LO https://github.com/conallob/jira-to-beads/releases/latest/download/jira-to-beads_Linux_arm64.tar.gz
-tar xzf jira-to-beads_Linux_arm64.tar.gz
-sudo mv jira-to-beads /usr/local/bin/
+curl -LO https://github.com/conallob/jira-beads-sync/releases/latest/download/jira-beads-sync_Linux_arm64.tar.gz
+tar xzf jira-beads-sync_Linux_arm64.tar.gz
+sudo mv jira-beads-sync /usr/local/bin/
 ```
 
 **Docker:**
 ```bash
-docker pull ghcr.io/conallob/jira-to-beads:latest
-docker run --rm -v $(pwd):/data ghcr.io/conallob/jira-to-beads:latest convert /data/jira-export.json
+docker pull ghcr.io/conallob/jira-beads-sync:latest
+docker run --rm -v $(pwd):/data ghcr.io/conallob/jira-beads-sync:latest convert /data/jira-export.json
 ```
 
 ### Install from Source
 
 ```bash
-go install github.com/conallob/jira-to-beads/cmd/jira-to-beads@latest
+go install github.com/conallob/jira-beads-sync/cmd/jira-beads-sync@latest
 ```
 
 Or build from source:
 
 ```bash
-git clone https://github.com/conallob/jira-to-beads.git
-cd jira-to-beads
+git clone https://github.com/conallob/jira-beads-sync.git
+cd jira-beads-sync
 make build
 ```
 
@@ -84,13 +84,13 @@ Fetch issues directly from Jira and convert to beads format:
 
 ```bash
 # Configure Jira credentials (one-time setup)
-jira-to-beads configure
+jira-beads-sync configure
 
 # Fetch and convert a Jira issue with its entire dependency graph
-jira-to-beads quickstart https://jira.example.com/browse/PROJ-123
+jira-beads-sync quickstart https://jira.example.com/browse/PROJ-123
 
 # Or use issue key directly (uses base URL from config)
-jira-to-beads quickstart PROJ-123
+jira-beads-sync quickstart PROJ-123
 ```
 
 The quickstart command will:
@@ -105,7 +105,7 @@ Jira credentials can be configured in three ways (in order of precedence):
 
 1. **Interactive configuration:**
    ```bash
-   jira-to-beads configure
+   jira-beads-sync configure
    ```
 
 2. **Environment variables:**
@@ -115,7 +115,7 @@ Jira credentials can be configured in three ways (in order of precedence):
    export JIRA_API_TOKEN=your-api-token
    ```
 
-3. **Config file** at `~/.config/jira-to-beads/config.yml`:
+3. **Config file** at `~/.config/jira-beads-sync/config.yml`:
    ```yaml
    jira:
      base_url: https://jira.example.com
@@ -131,17 +131,17 @@ Convert a previously exported Jira JSON file:
 
 ```bash
 # Convert a Jira export file to beads format
-jira-to-beads convert jira-export.json
+jira-beads-sync convert jira-export.json
 ```
 
 ### Other Commands
 
 ```bash
 # Show version
-jira-to-beads version
+jira-beads-sync version
 
 # Show help
-jira-to-beads help
+jira-beads-sync help
 ```
 
 ## Claude Code Plugin
@@ -150,7 +150,7 @@ This tool can be used as a Claude Code plugin to import Jira issues through natu
 
 ```bash
 # Install and start Claude with plugin
-claude --plugin-dir /path/to/jira-to-beads
+claude --plugin-dir /path/to/jira-beads-sync
 ```
 
 Then use natural language commands:
@@ -195,7 +195,7 @@ See [CLAUDE.md](CLAUDE.md) for detailed architecture documentation.
 
 ## Project Structure
 
-- `cmd/jira-to-beads/` - Main application entry point
+- `cmd/jira-beads-sync/` - Main application entry point
 - `internal/jira/` - Jira JSON to protobuf adapter
 - `internal/beads/` - YAML rendering layer on top of protobuf
 - `internal/converter/` - Conversion logic between Jira and beads protobuf

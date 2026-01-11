@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config holds the configuration for jira-to-beads
+// Config holds the configuration for jira-beads-sync
 type Config struct {
 	Jira JiraConfig `yaml:"jira"`
 }
@@ -89,16 +89,16 @@ func (c *Config) Save() error {
 func getConfigPath() string {
 	// Try XDG_CONFIG_HOME first
 	if xdgConfig := os.Getenv("XDG_CONFIG_HOME"); xdgConfig != "" {
-		return filepath.Join(xdgConfig, "jira-to-beads", "config.yml")
+		return filepath.Join(xdgConfig, "jira-beads-sync", "config.yml")
 	}
 
 	// Fall back to HOME/.config
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return ".jira-to-beads.yml"
+		return ".jira-beads-sync.yml"
 	}
 
-	return filepath.Join(home, ".config", "jira-to-beads", "config.yml")
+	return filepath.Join(home, ".config", "jira-beads-sync", "config.yml")
 }
 
 // loadFromFile loads configuration from a YAML file

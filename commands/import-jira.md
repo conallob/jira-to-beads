@@ -14,13 +14,13 @@ The user can provide either:
 ## Steps
 
 1. **Check Configuration**: Verify Jira credentials are configured
-   - Run `jira-to-beads configure` if not configured
-   - Configuration is stored at `~/.config/jira-to-beads/config.yml`
+   - Run `jira-beads-sync configure` if not configured
+   - Configuration is stored at `~/.config/jira-beads-sync/config.yml`
    - Can also use environment variables: `JIRA_BASE_URL`, `JIRA_USERNAME`, `JIRA_API_TOKEN`
 
 2. **Fetch and Convert**: Run the quickstart command
    ```bash
-   jira-to-beads quickstart <jira-url-or-key>
+   jira-beads-sync quickstart <jira-url-or-key>
    ```
 
    This will:
@@ -68,7 +68,7 @@ The command recursively fetches:
 ## Error Handling
 
 If the command fails:
-- **Authentication Error**: Check credentials with `jira-to-beads configure`
+- **Authentication Error**: Check credentials with `jira-beads-sync configure`
 - **Issue Not Found**: Verify the issue key or URL is correct
 - **Network Error**: Check connectivity to Jira server
 - **Permission Error**: Ensure API token has read access to the issue
@@ -79,7 +79,7 @@ If the command fails:
 User: Import PROJ-123 from Jira
 
 Claude: I'll import PROJ-123 and its dependencies from Jira.
-[Runs: jira-to-beads quickstart PROJ-123]
+[Runs: jira-beads-sync quickstart PROJ-123]
 
 ✓ Fetched 5 issue(s)
 ✓ Conversion complete!

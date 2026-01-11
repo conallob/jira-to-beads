@@ -3,8 +3,8 @@ package converter
 import (
 	"testing"
 
-	beadspb "github.com/conallob/jira-to-beads/gen/beads"
-	jirapb "github.com/conallob/jira-to-beads/gen/jira"
+	beadspb "github.com/conallob/jira-beads-sync/gen/beads"
+	jirapb "github.com/conallob/jira-beads-sync/gen/jira"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

@@ -18,12 +18,12 @@ The tool supports two modes:
 
 **Build**:
 ```bash
-go build -o jira-to-beads ./cmd/jira-to-beads
+go build -o jira-beads-sync ./cmd/jira-beads-sync
 ```
 
 **Run**:
 ```bash
-go run ./cmd/jira-to-beads [args]
+go run ./cmd/jira-beads-sync [args]
 ```
 
 **Test**:
@@ -41,12 +41,12 @@ golangci-lint run                # Run linter
 
 **Generate Protobuf Code**:
 ```bash
-protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path=proto proto/jira.proto proto/beads.proto
+protoc --go_out=. --go_opt=module=github.com/conallob/jira-beads-sync --proto_path=proto proto/jira.proto proto/beads.proto
 ```
 
 ### Go Project Structure
 
-- `cmd/jira-to-beads/` - Main application entry point with CLI commands
+- `cmd/jira-beads-sync/` - Main application entry point with CLI commands
 - `internal/jira/` - Jira integration
   - `adapter.go` - JSON to protobuf adapter for Jira exports
   - `client.go` - Jira REST API v2 client for fetching issues
@@ -130,8 +130,8 @@ When implementing new features:
 
 ### Quickstart Mode (Recommended)
 Users will:
-1. Configure Jira credentials once: `jira-to-beads configure`
-2. Fetch and convert issues: `jira-to-beads quickstart PROJ-123`
+1. Configure Jira credentials once: `jira-beads-sync configure`
+2. Fetch and convert issues: `jira-beads-sync quickstart PROJ-123`
 3. The tool will recursively fetch all dependencies and convert to beads format
 4. Validate that hierarchy and dependencies are correct
 
@@ -194,10 +194,10 @@ When working on Jira issues, import them into beads:
 For users:
 ```bash
 # Install the CLI tool first
-go install github.com/conallob/jira-to-beads/cmd/jira-to-beads@latest
+go install github.com/conallob/jira-beads-sync/cmd/jira-beads-sync@latest
 
 # Start Claude with plugin enabled
-claude --plugin-dir /path/to/jira-to-beads
+claude --plugin-dir /path/to/jira-beads-sync
 ```
 
 For development:

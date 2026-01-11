@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	beadspb "github.com/conallob/jira-to-beads/gen/beads"
-	jirapb "github.com/conallob/jira-to-beads/gen/jira"
+	beadspb "github.com/conallob/jira-beads-sync/gen/beads"
+	jirapb "github.com/conallob/jira-beads-sync/gen/jira"
 )
 
 // ProtoConverter handles converting Jira protobuf to beads protobuf

@@ -3,7 +3,7 @@ package jira
 import (
 	"testing"
 
-	pb "github.com/conallob/jira-to-beads/gen/jira"
+	pb "github.com/conallob/jira-beads-sync/gen/jira"
 )
 
 func TestAdapterParseFile(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	pb "github.com/conallob/jira-to-beads/gen/beads"
+	pb "github.com/conallob/jira-beads-sync/gen/beads"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

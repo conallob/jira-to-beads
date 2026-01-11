@@ -1,4 +1,4 @@
-module github.com/conallob/jira-to-beads
+module github.com/conallob/jira-beads-sync
 
 go 1.25.5
 

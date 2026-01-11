@@ -1,4 +1,4 @@
-# jira-to-beads Claude Code Plugin
+# jira-beads-sync Claude Code Plugin
 
 This directory contains a Claude Code plugin that enables Claude to import Jira issues directly into beads issue tracker through natural language commands.
 
@@ -10,15 +10,15 @@ To use this plugin in development or from a local clone:
 
 ```bash
 # Clone the repository
-git clone https://github.com/conallob/jira-to-beads.git
-cd jira-to-beads
+git clone https://github.com/conallob/jira-beads-sync.git
+cd jira-beads-sync
 
 # Build the CLI tool
 make build
-sudo mv jira-to-beads /usr/local/bin/
+sudo mv jira-beads-sync /usr/local/bin/
 
 # Start Claude Code with plugin enabled
-claude --plugin-dir /path/to/jira-to-beads
+claude --plugin-dir /path/to/jira-beads-sync
 ```
 
 ### From Plugin Marketplace
@@ -27,10 +27,10 @@ Once published to a marketplace:
 
 ```bash
 # Install the plugin
-claude plugin install jira-to-beads
+claude plugin install jira-beads-sync
 
 # Or install from a specific marketplace
-claude plugin install jira-to-beads@your-marketplace
+claude plugin install jira-beads-sync@your-marketplace
 ```
 
 ## Available Commands
@@ -160,7 +160,7 @@ After import, issues are fully integrated with beads:
 
 ## Requirements
 
-- **jira-to-beads CLI**: Must be installed and in PATH
+- **jira-beads-sync CLI**: Must be installed and in PATH
 - **beads plugin**: Required for beads integration
 - **Jira credentials**: Configured via `/configure-jira` or environment variables
 
@@ -170,7 +170,7 @@ After import, issues are fully integrated with beads:
 
 1. Install the CLI tool:
    ```bash
-   go install github.com/conallob/jira-to-beads/cmd/jira-to-beads@latest
+   go install github.com/conallob/jira-beads-sync/cmd/jira-beads-sync@latest
    ```
 
 2. Configure Jira credentials:
@@ -196,32 +196,32 @@ export JIRA_API_TOKEN=your-api-token
 ## Plugin Structure
 
 ```
-jira-to-beads/
+jira-beads-sync/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin metadata
 ├── commands/
 │   ├── import-jira.md       # Import from Jira API
 │   ├── configure-jira.md    # Configure credentials
 │   └── convert-jira-export.md  # Convert export files
-├── cmd/jira-to-beads/       # CLI implementation
+├── cmd/jira-beads-sync/       # CLI implementation
 └── internal/                # Core functionality
 ```
 
 ## Troubleshooting
 
-### "Command not found: jira-to-beads"
+### "Command not found: jira-beads-sync"
 
 The CLI tool is not in your PATH. Install it:
 ```bash
-go install github.com/conallob/jira-to-beads/cmd/jira-to-beads@latest
+go install github.com/conallob/jira-beads-sync/cmd/jira-beads-sync@latest
 ```
 
 Or build from source:
 ```bash
-git clone https://github.com/conallob/jira-to-beads.git
-cd jira-to-beads
+git clone https://github.com/conallob/jira-beads-sync.git
+cd jira-beads-sync
 make build
-sudo mv jira-to-beads /usr/local/bin/
+sudo mv jira-beads-sync /usr/local/bin/
 ```
 
 ### "Invalid configuration"

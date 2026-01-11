@@ -3,8 +3,8 @@ package converter
 import (
 	"fmt"
 
-	"github.com/conallob/jira-to-beads/internal/beads"
-	"github.com/conallob/jira-to-beads/internal/jira"
+	"github.com/conallob/jira-beads-sync/internal/beads"
+	"github.com/conallob/jira-beads-sync/internal/jira"
 )
 
 // Pipeline orchestrates the full conversion from Jira JSON to beads YAML

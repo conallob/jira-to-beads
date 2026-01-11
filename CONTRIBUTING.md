@@ -1,4 +1,4 @@
-# Contributing to jira-to-beads
+# Contributing to jira-beads-sync
 
 Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to this project.
 
@@ -16,8 +16,8 @@ Thank you for your interest in contributing! This document provides guidelines a
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/conallob/jira-to-beads.git
-   cd jira-to-beads
+   git clone https://github.com/conallob/jira-beads-sync.git
+   cd jira-beads-sync
    ```
 
 2. **Install dependencies:**

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	pb "github.com/conallob/jira-to-beads/gen/beads"
+	pb "github.com/conallob/jira-beads-sync/gen/beads"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/yaml.v3"
 )

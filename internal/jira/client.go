@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	pb "github.com/conallob/jira-to-beads/gen/jira"
+	pb "github.com/conallob/jira-beads-sync/gen/jira"
 )
 
 // Client handles communication with Jira API

@@ -34,7 +34,7 @@ jobs:
 
     - name: Verify protobuf generation
       run: |
-        protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path=proto proto/jira.proto proto/beads.proto
+        protoc --go_out=. --go_opt=module=github.com/conallob/jira-beads-sync --proto_path=proto proto/jira.proto proto/beads.proto
         git diff --exit-code || (echo "Protobuf files not up to date. Run: make proto" && exit 1)
 
     - name: Cache Go modules
@@ -83,7 +83,7 @@ jobs:
       run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
     - name: Generate protobuf files
-      run: protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path=proto proto/jira.proto proto/beads.proto
+      run: protoc --go_out=. --go_opt=module=github.com/conallob/jira-beads-sync --proto_path=proto proto/jira.proto proto/beads.proto
 
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v6
@@ -121,10 +121,10 @@ jobs:
       run: go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
     - name: Generate protobuf files
-      run: protoc --go_out=. --go_opt=module=github.com/conallob/jira-to-beads --proto_path=proto proto/jira.proto proto/beads.proto
+      run: protoc --go_out=. --go_opt=module=github.com/conallob/jira-beads-sync --proto_path=proto proto/jira.proto proto/beads.proto
 
     - name: Build binary
-      run: go build -v -o jira-to-beads ./cmd/jira-to-beads
+      run: go build -v -o jira-beads-sync ./cmd/jira-beads-sync
 
     - name: Test binary
-      run: ./jira-to-beads version
+      run: ./jira-beads-sync version

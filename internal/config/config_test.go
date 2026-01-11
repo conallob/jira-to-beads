@@ -359,7 +359,7 @@ func TestGetConfigPathXDG(t *testing.T) {
 	}()
 
 	path := getConfigPath()
-	expected := filepath.Join(xdgConfigHome, "jira-to-beads", "config.yml")
+	expected := filepath.Join(xdgConfigHome, "jira-beads-sync", "config.yml")
 
 	if path != expected {
 		t.Errorf("Expected path '%s', got '%s'", expected, path)
@@ -377,7 +377,7 @@ func TestGetConfigPathHome(t *testing.T) {
 	}
 
 	path := getConfigPath()
-	expected := filepath.Join(home, ".config", "jira-to-beads", "config.yml")
+	expected := filepath.Join(home, ".config", "jira-beads-sync", "config.yml")
 
 	if path != expected {
 		t.Errorf("Expected path '%s', got '%s'", expected, path)

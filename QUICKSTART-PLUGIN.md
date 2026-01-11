@@ -1,23 +1,23 @@
-# Quick Start: Using jira-to-beads with Claude Code
+# Quick Start: Using jira-beads-sync with Claude Code
 
-This guide helps you get started using the jira-to-beads Claude Code plugin.
+This guide helps you get started using the jira-beads-sync Claude Code plugin.
 
 ## Installation
 
 1. **Install the CLI tool:**
    ```bash
-   go install github.com/conallob/jira-to-beads/cmd/jira-to-beads@latest
+   go install github.com/conallob/jira-beads-sync/cmd/jira-beads-sync@latest
    ```
 
 2. **Clone the repository:**
    ```bash
-   git clone https://github.com/conallob/jira-to-beads.git
+   git clone https://github.com/conallob/jira-beads-sync.git
    ```
 
 3. **Start Claude Code with the plugin:**
    ```bash
    cd your-project
-   claude --plugin-dir ~/path/to/jira-to-beads
+   claude --plugin-dir ~/path/to/jira-beads-sync
    ```
 
 ## First-Time Setup
@@ -27,7 +27,7 @@ Configure your Jira credentials:
 ```
 You: Configure my Jira credentials
 
-Claude will run: jira-to-beads configure
+Claude will run: jira-beads-sync configure
 [Follow prompts to enter Jira URL, email, and API token]
 ```
 
@@ -43,7 +43,7 @@ Simply ask Claude in natural language:
 You: Import PROJ-123 from Jira
 
 Claude: I'll import PROJ-123 and its dependencies from Jira.
-[Runs: jira-to-beads quickstart PROJ-123]
+[Runs: jira-beads-sync quickstart PROJ-123]
 
 ✓ Fetched 5 issue(s)
 ✓ Conversion complete!
@@ -157,11 +157,11 @@ The plugin automatically maps Jira values to beads:
 
 ## Troubleshooting
 
-### "Command not found: jira-to-beads"
+### "Command not found: jira-beads-sync"
 
 Install the CLI tool:
 ```bash
-go install github.com/conallob/jira-to-beads/cmd/jira-to-beads@latest
+go install github.com/conallob/jira-beads-sync/cmd/jira-beads-sync@latest
 ```
 
 ### "Invalid configuration"
@@ -181,7 +181,7 @@ You: Configure Jira credentials
 
 Make sure you're starting Claude with the plugin directory:
 ```bash
-claude --plugin-dir /path/to/jira-to-beads
+claude --plugin-dir /path/to/jira-beads-sync
 ```
 
 ## Advanced Usage
@@ -195,7 +195,7 @@ export JIRA_BASE_URL=https://jira.example.com
 export JIRA_USERNAME=your-email@example.com
 export JIRA_API_TOKEN=your-api-token
 
-claude --plugin-dir /path/to/jira-to-beads
+claude --plugin-dir /path/to/jira-beads-sync
 ```
 
 ### Converting Export Files
@@ -206,7 +206,7 @@ If you have a Jira export JSON file:
 You: Convert jira-export.json to beads format
 
 Claude: I'll convert your Jira export file.
-[Runs: jira-to-beads convert jira-export.json]
+[Runs: jira-beads-sync convert jira-export.json]
 ```
 
 ### Project-Specific Plugin
@@ -215,7 +215,7 @@ To always use the plugin in a specific project, add to `.claude/settings.json`:
 
 ```json
 {
-  "pluginDirs": ["/path/to/jira-to-beads"]
+  "pluginDirs": ["/path/to/jira-beads-sync"]
 }
 ```
 
@@ -228,5 +228,5 @@ To always use the plugin in a specific project, add to `.claude/settings.json`:
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/conallob/jira-to-beads/issues
-- Repository: https://github.com/conallob/jira-to-beads
+- GitHub Issues: https://github.com/conallob/jira-beads-sync/issues
+- Repository: https://github.com/conallob/jira-beads-sync
