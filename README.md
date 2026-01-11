@@ -8,7 +8,7 @@
 
 > Bridge Jira and beads: Import Jira issues locally, work with git-backed issue tracking, sync changes back to Jira.
 
-**jira-beads-sync** synchronizes Jira issues with [beads](https://github.com/conallob/beads), a git-backed issue tracker. Work with Jira issues as YAML files in your repository, manage them with beads commands or Claude Code, then sync your changes back to Jira.
+**jira-beads-sync** synchronizes Jira issues with [beads](https://github.com/steveyegge/beads), a git-backed issue tracker. Work with Jira issues as YAML files in your repository, manage them with beads commands or Claude Code, then sync your changes back to Jira.
 
 Perfect for developers who want to:
 - Track Jira issues alongside code in version control
