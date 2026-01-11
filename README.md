@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/conallob/jira-beads-sync)](https://goreportcard.com/report/github.com/conallob/jira-beads-sync)
 [![License](https://img.shields.io/github/license/conallob/jira-beads-sync)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/conallob/jira-beads-sync)](https://github.com/conallob/jira-beads-sync/releases/latest)
-[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-yellow.svg)](https://www.buymeacoffee.com/pacha)
+[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-yellow.svg)](https://www.buymeacoffee.com/conallob)
 
 A Go-based CLI tool to sync Jira task trees with beads issues. This tool handles the hierarchical structure of Jira tasks (epics, stories, subtasks) and provides bidirectional synchronization between Jira and the beads issue tracking system while preserving dependencies and relationships.
 
