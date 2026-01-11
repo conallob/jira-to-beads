@@ -112,14 +112,48 @@ This architecture separates concerns: protobuf handles data structure and valida
 
 ## Development Approach
 
-When modifying data structures:
+### Git Workflow
+
+**IMPORTANT**: All new development must be done in feature branches, not directly on `main`.
+
+1. **Create a feature branch** before starting any new work:
+   ```bash
+   git checkout -b feature/your-feature-name
+   # or for bug fixes:
+   git checkout -b fix/bug-description
+   ```
+
+2. **Make your changes** in the feature branch
+
+3. **Commit your changes** following conventional commit format:
+   - `feat:` for new features
+   - `fix:` for bug fixes
+   - `docs:` for documentation changes
+   - `test:` for test changes
+   - `refactor:` for code refactoring
+   - `ci:` for CI/CD changes
+
+4. **Push the feature branch** to remote:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+5. **Create a Pull Request** against `main` branch:
+   - Include a clear description of changes
+   - Reference any related issues
+   - Ensure all CI checks pass
+   - Wait for code review before merging
+
+6. **Never commit directly to `main`** - always use the PR workflow
+
+### When Modifying Data Structures
 
 1. **Update `.proto` files first** in `proto/` directory
 2. **Regenerate Go code** using the protoc command above
 3. **Update rendering layers** if field names or types change
 4. **Update tests** to reflect schema changes
 
-When implementing new features:
+### When Implementing New Features
 
 1. **Preserve Hierarchy**: Jira epics → beads epics, stories → issues, subtasks → issues with dependencies
 2. **Map Dependencies**: Convert Jira issue links (blocks, depends on) to beads dependencies
