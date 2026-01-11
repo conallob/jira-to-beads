@@ -185,8 +185,10 @@ func GetBaseURLFromIssueURL(jiraURL string) (string, error) {
 
 // SearchIssuesByLabel fetches all issues with a given label using JQL
 func (c *Client) SearchIssuesByLabel(label string) ([]string, error) {
-	// Build JQL query for label
-	jql := fmt.Sprintf("labels = %s", label)
+	// Build JQL query for label with proper quoting
+	// Escape any quotes in the label value
+	escapedLabel := strings.ReplaceAll(label, `"`, `\"`)
+	jql := fmt.Sprintf(`labels = "%s"`, escapedLabel)
 	return c.SearchIssues(jql)
 }
 
