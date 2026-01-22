@@ -77,6 +77,58 @@ func (c *Client) FetchIssue(issueKey string) (*pb.Issue, error) {
 	return issue, nil
 }
 
+// UserInfo represents basic information about a Jira user
+type UserInfo struct {
+	AccountID    string `json:"accountId"`
+	DisplayName  string `json:"displayName"`
+	EmailAddress string `json:"emailAddress"`
+	Active       bool   `json:"active"`
+}
+
+// GetCurrentUser fetches information about the currently authenticated user
+// This is useful for validating credentials and testing connectivity
+func (c *Client) GetCurrentUser() (*UserInfo, error) {
+	apiURL := fmt.Sprintf("%s/rest/api/2/myself", c.baseURL)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.SetBasicAuth(c.username, c.apiToken)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to Jira: %w", err)
+	}
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		if resp.StatusCode == http.StatusUnauthorized {
+			return nil, fmt.Errorf("authentication failed: invalid username or API token")
+		}
+		return nil, fmt.Errorf("jira API returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response: %w", err)
+	}
+
+	var userInfo UserInfo
+	if err := json.Unmarshal(body, &userInfo); err != nil {
+		return nil, fmt.Errorf("failed to parse user info: %w", err)
+	}
+
+	return &userInfo, nil
+}
+
 // FetchIssueWithDependencies fetches an issue and all its dependencies recursively
 func (c *Client) FetchIssueWithDependencies(issueKey string) (*pb.Export, error) {
 	visited := make(map[string]bool)

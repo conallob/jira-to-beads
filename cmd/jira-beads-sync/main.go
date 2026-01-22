@@ -65,6 +65,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "whoami":
+		if err := runWhoami(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	case "version":
 		fmt.Println("jira-beads-sync v0.1.0")
 	case "help", "--help", "-h":
@@ -184,6 +189,47 @@ func runConfigure() error {
 	return nil
 }
 
+func runWhoami() error {
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("no configuration found. Run 'jira-beads-sync configure' to set up")
+	}
+
+	if err := cfg.Validate(); err != nil {
+		return fmt.Errorf("invalid configuration: %w. Run 'jira-beads-sync configure' to fix", err)
+	}
+
+	fmt.Println("jira-beads-sync whoami")
+	fmt.Println("======================")
+	fmt.Println()
+
+	// Create Jira client
+	client := jira.NewClient(cfg.Jira.BaseURL, cfg.Jira.Username, cfg.Jira.APIToken)
+
+	// Test authentication by fetching current user
+	fmt.Println("Testing Jira connection...")
+	userInfo, err := client.GetCurrentUser()
+	if err != nil {
+		return fmt.Errorf("failed to authenticate: %w", err)
+	}
+
+	fmt.Println()
+	fmt.Println("✓ Authentication successful")
+	fmt.Println()
+	fmt.Println("Jira User Information:")
+	fmt.Printf("  Display Name:  %s\n", userInfo.DisplayName)
+	fmt.Printf("  Email:         %s\n", userInfo.EmailAddress)
+	fmt.Printf("  Account ID:    %s\n", userInfo.AccountID)
+	fmt.Printf("  Active:        %t\n", userInfo.Active)
+	fmt.Println()
+	fmt.Println("Jira Instance:")
+	fmt.Printf("  Base URL:      %s\n", cfg.Jira.BaseURL)
+	fmt.Printf("  Username:      %s\n", cfg.Jira.Username)
+
+	return nil
+}
+
 func runConvert(jiraFile string) error {
 	// Get current directory as output directory
 	outputDir, err := os.Getwd()
@@ -298,6 +344,7 @@ func printUsage() {
 	fmt.Println("  jira-beads-sync annotate <issue-id> <repo>    Annotate issue with repository info")
 	fmt.Println("  jira-beads-sync convert <jira-export-file>    Convert Jira export to beads format")
 	fmt.Println("  jira-beads-sync configure                     Configure Jira credentials")
+	fmt.Println("  jira-beads-sync whoami                        Test Jira authentication and show user info")
 	fmt.Println("  jira-beads-sync version                       Show version information")
 	fmt.Println("  jira-beads-sync help                          Show this help message")
 	fmt.Println()

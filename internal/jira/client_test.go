@@ -1189,3 +1189,131 @@ func TestSearchIssuesInvalidJSON(t *testing.T) {
 		t.Error("Expected error for invalid JSON, got nil")
 	}
 }
+
+func TestGetCurrentUser(t *testing.T) {
+	// Create a test server
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Verify the request
+		if r.URL.Path != "/rest/api/2/myself" {
+			t.Errorf("Expected path '/rest/api/2/myself', got '%s'", r.URL.Path)
+		}
+
+		if r.Method != "GET" {
+			t.Errorf("Expected GET method, got '%s'", r.Method)
+		}
+
+		// Check authentication
+		username, password, ok := r.BasicAuth()
+		if !ok {
+			t.Error("Expected Basic Auth to be present")
+		}
+		if username != "user@example.com" {
+			t.Errorf("Expected username 'user@example.com', got '%s'", username)
+		}
+		if password != "token123" {
+			t.Errorf("Expected password 'token123', got '%s'", password)
+		}
+
+		// Return a mock user info
+		response := map[string]interface{}{
+			"accountId":    "557058:12345678-1234-1234-1234-123456789012",
+			"displayName":  "John Doe",
+			"emailAddress": "john.doe@example.com",
+			"active":       true,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("Failed to encode response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	// Create client with test server URL
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	// Get current user
+	userInfo, err := client.GetCurrentUser()
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+
+	if userInfo == nil {
+		t.Fatal("Expected user info to be returned, got nil")
+	}
+
+	if userInfo.AccountID != "557058:12345678-1234-1234-1234-123456789012" {
+		t.Errorf("Expected account ID '557058:12345678-1234-1234-1234-123456789012', got '%s'", userInfo.AccountID)
+	}
+
+	if userInfo.DisplayName != "John Doe" {
+		t.Errorf("Expected display name 'John Doe', got '%s'", userInfo.DisplayName)
+	}
+
+	if userInfo.EmailAddress != "john.doe@example.com" {
+		t.Errorf("Expected email 'john.doe@example.com', got '%s'", userInfo.EmailAddress)
+	}
+
+	if !userInfo.Active {
+		t.Error("Expected user to be active")
+	}
+}
+
+func TestGetCurrentUserUnauthorized(t *testing.T) {
+	// Create a test server that returns 401
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+		if _, err := w.Write([]byte(`{"errorMessages":["Authentication failed"]}`)); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "badtoken")
+
+	_, err := client.GetCurrentUser()
+	if err == nil {
+		t.Error("Expected error for unauthorized request, got nil")
+	}
+
+	// Should return a specific error message for auth failure
+	expectedError := "authentication failed: invalid username or API token"
+	if err.Error() != expectedError {
+		t.Errorf("Expected error '%s', got '%s'", expectedError, err.Error())
+	}
+}
+
+func TestGetCurrentUserInvalidJSON(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := w.Write([]byte(`{invalid json`)); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	_, err := client.GetCurrentUser()
+	if err == nil {
+		t.Error("Expected error for invalid JSON, got nil")
+	}
+}
+
+func TestGetCurrentUserServerError(t *testing.T) {
+	// Create a test server that returns 500
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		if _, err := w.Write([]byte(`{"errorMessages":["Internal server error"]}`)); err != nil {
+			t.Errorf("Failed to write response: %v", err)
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL, "user@example.com", "token123")
+
+	_, err := client.GetCurrentUser()
+	if err == nil {
+		t.Error("Expected error for server error, got nil")
+	}
+}
