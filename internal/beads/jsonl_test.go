@@ -92,7 +92,9 @@ func TestRenderExport(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to open issues.jsonl: %v", err)
 	}
-	defer issuesData.Close()
+	defer func() {
+		_ = issuesData.Close()
+	}()
 
 	scanner := bufio.NewScanner(issuesData)
 	issueCount := 0

@@ -54,12 +54,16 @@ func (r *JSONLRenderer) ensureDirectory() error {
 }
 
 // renderIssuesToJSONL renders issues to a JSONL file
-func (r *JSONLRenderer) renderIssuesToJSONL(filename string, issues []*pb.Issue) error {
+func (r *JSONLRenderer) renderIssuesToJSONL(filename string, issues []*pb.Issue) (err error) {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		if cerr := file.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	encoder := json.NewEncoder(file)
 	for _, issue := range issues {
@@ -73,12 +77,16 @@ func (r *JSONLRenderer) renderIssuesToJSONL(filename string, issues []*pb.Issue)
 }
 
 // renderEpicsToJSONL renders epics to a JSONL file
-func (r *JSONLRenderer) renderEpicsToJSONL(filename string, epics []*pb.Epic) error {
+func (r *JSONLRenderer) renderEpicsToJSONL(filename string, epics []*pb.Epic) (err error) {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		if cerr := file.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	encoder := json.NewEncoder(file)
 	for _, epic := range epics {
@@ -233,7 +241,7 @@ func (r *JSONLRenderer) timestampToString(ts *timestamppb.Timestamp) string {
 }
 
 // AddRepositoryAnnotation adds a repository to an issue's metadata in the JSONL file
-func (r *JSONLRenderer) AddRepositoryAnnotation(issueID, repository string) error {
+func (r *JSONLRenderer) AddRepositoryAnnotation(issueID, repository string) (err error) {
 	issuesFile := filepath.Join(r.outputDir, ".beads", "issues.jsonl")
 
 	// Read all issues
@@ -241,7 +249,11 @@ func (r *JSONLRenderer) AddRepositoryAnnotation(issueID, repository string) erro
 	if err != nil {
 		return fmt.Errorf("failed to open issues file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if cerr := file.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	var issues []*BeadsIssue
 	scanner := bufio.NewScanner(file)
@@ -291,7 +303,11 @@ func (r *JSONLRenderer) AddRepositoryAnnotation(issueID, repository string) erro
 	if err != nil {
 		return fmt.Errorf("failed to create issues file: %w", err)
 	}
-	defer outFile.Close()
+	defer func() {
+		if cerr := outFile.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	encoder := json.NewEncoder(outFile)
 	for _, issue := range issues {
