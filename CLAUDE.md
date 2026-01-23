@@ -51,7 +51,8 @@ protoc --go_out=. --go_opt=module=github.com/conallob/jira-beads-sync --proto_pa
 - `internal/jira/` - Jira integration
   - `adapter.go` - JSON to protobuf adapter for Jira exports
   - `client.go` - Jira REST API v2 client for fetching issues
-- `internal/beads/` - YAML rendering layer on top of protobuf
+- `internal/beads/` - JSONL rendering layer on top of protobuf
+  - `jsonl.go` - Renders beads protobuf to JSONL format
 - `internal/converter/` - Conversion logic between Jira and beads protobuf
 - `internal/config/` - Configuration management (credentials, base URL)
 - `proto/` - Protocol Buffer definitions (source of truth for data structures)
@@ -62,13 +63,17 @@ protoc --go_out=. --go_opt=module=github.com/conallob/jira-beads-sync --proto_pa
 
 ## Beads Integration
 
-This tool creates issues for the beads system (git-backed issue tracker). Key beads concepts:
+This tool creates issues for the beads system (git-backed issue tracker).
 
-- **Issues**: Work items stored in `.beads/issues/` as YAML files
+**Official Beads Repository**: https://github.com/steveyegge/beads
+
+Key beads concepts:
+
+- **Issues**: Work items stored in `.beads/issues.jsonl` as JSONL (JSON Lines) format
 - **Dependencies**: Issues can depend on other issues using `dependsOn` field
 - **Status**: `open`, `in_progress`, `blocked`, or `closed`
 - **Priority**: `p0` (critical) through `p4` (low)
-- **Epics**: Large features that group related issues using `epic` field
+- **Epics**: Large features that group related issues using `epic` field, stored in `.beads/epics.jsonl`
 
 Relevant beads commands for testing:
 - `bd list` - List all issues
@@ -84,29 +89,29 @@ This tool uses Protocol Buffers as the internal data structure format with rende
 ### Data Flow
 
 ```
-JSON (Jira) → Protobuf (Jira) → Protobuf (Beads) → YAML (Beads)
+JSON (Jira) → Protobuf (Jira) → Protobuf (Beads) → JSONL (Beads)
      ↓              ↓                  ↓               ↓
 Adapter    Generated Types    Converter      Renderer
 ```
 
 1. **Jira Adapter** (`internal/jira/adapter.go`): Parses Jira JSON exports into protobuf messages defined in `proto/jira.proto`
 2. **Converter** (`internal/converter/proto_converter.go`): Transforms Jira protobuf to beads protobuf with mappings for status, priority, and dependencies
-3. **YAML Renderer** (`internal/beads/yaml.go`): Renders beads protobuf to human-readable YAML files
+3. **JSONL Renderer** (`internal/beads/jsonl.go`): Renders beads protobuf to JSONL files compatible with the beads CLI
 
 ### Why Protocol Buffers?
 
 - **Single Source of Truth**: Data structures defined once in `.proto` files
 - **Type Safety**: Strong typing across all layers
 - **Versioning**: Built-in support for schema evolution
-- **Multiple Formats**: Easy to add new rendering formats (JSON, TOML) without changing core logic
+- **Multiple Formats**: Easy to add new rendering formats without changing core logic
 - **Performance**: Efficient serialization when needed
 
-### Configuration Format
+### Output Format
 
-Users interact with YAML, which is just a rendering layer on top of protobuf. The tool:
+The tool outputs JSONL (JSON Lines) format, which is the standard format used by beads:
 - Reads JSON (Jira exports)
 - Processes data as protobuf internally
-- Writes YAML (beads issues)
+- Writes JSONL (beads issues) to `.beads/issues.jsonl` and `.beads/epics.jsonl`
 
 This architecture separates concerns: protobuf handles data structure and validation, while format-specific code handles I/O.
 

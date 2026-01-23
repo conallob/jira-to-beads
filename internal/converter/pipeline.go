@@ -7,23 +7,23 @@ import (
 	"github.com/conallob/jira-beads-sync/internal/jira"
 )
 
-// Pipeline orchestrates the full conversion from Jira JSON to beads YAML
+// Pipeline orchestrates the full conversion from Jira JSON to beads JSONL
 type Pipeline struct {
-	jiraAdapter  *jira.Adapter
-	converter    *ProtoConverter
-	yamlRenderer *beads.YAMLRenderer
+	jiraAdapter   *jira.Adapter
+	converter     *ProtoConverter
+	jsonlRenderer *beads.JSONLRenderer
 }
 
 // NewPipeline creates a new conversion pipeline
 func NewPipeline(outputDir string) *Pipeline {
 	return &Pipeline{
-		jiraAdapter:  jira.NewAdapter(),
-		converter:    NewProtoConverter(),
-		yamlRenderer: beads.NewYAMLRenderer(outputDir),
+		jiraAdapter:   jira.NewAdapter(),
+		converter:     NewProtoConverter(),
+		jsonlRenderer: beads.NewJSONLRenderer(outputDir),
 	}
 }
 
-// ConvertFile converts a Jira JSON export file to beads YAML files
+// ConvertFile converts a Jira JSON export file to beads JSONL files
 func (p *Pipeline) ConvertFile(jiraFile string) error {
 	// Step 1: Parse Jira JSON to protobuf
 	jiraExport, err := p.jiraAdapter.ParseFile(jiraFile)
@@ -37,9 +37,9 @@ func (p *Pipeline) ConvertFile(jiraFile string) error {
 		return fmt.Errorf("failed to convert to beads format: %w", err)
 	}
 
-	// Step 3: Render beads protobuf to YAML files
-	if err := p.yamlRenderer.RenderExport(beadsExport); err != nil {
-		return fmt.Errorf("failed to render YAML files: %w", err)
+	// Step 3: Render beads protobuf to JSONL files
+	if err := p.jsonlRenderer.RenderExport(beadsExport); err != nil {
+		return fmt.Errorf("failed to render JSONL files: %w", err)
 	}
 
 	return nil

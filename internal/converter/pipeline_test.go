@@ -3,6 +3,7 @@ package converter
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -17,8 +18,8 @@ func TestNewPipeline(t *testing.T) {
 	if pipeline.converter == nil {
 		t.Error("converter is nil")
 	}
-	if pipeline.yamlRenderer == nil {
-		t.Error("yamlRenderer is nil")
+	if pipeline.jsonlRenderer == nil {
+		t.Error("jsonlRenderer is nil")
 	}
 }
 
@@ -36,67 +37,45 @@ func TestPipelineConvertFile(t *testing.T) {
 		t.Fatalf("ConvertFile failed: %v", err)
 	}
 
-	// Verify output directories exist
-	issuesDir := filepath.Join(tmpDir, ".beads", "issues")
-	epicsDir := filepath.Join(tmpDir, ".beads", "epics")
-
-	if _, err := os.Stat(issuesDir); os.IsNotExist(err) {
-		t.Error("Issues directory was not created")
+	// Verify output directory exists
+	beadsDir := filepath.Join(tmpDir, ".beads")
+	if _, err := os.Stat(beadsDir); os.IsNotExist(err) {
+		t.Error("Beads directory was not created")
 	}
 
-	if _, err := os.Stat(epicsDir); os.IsNotExist(err) {
-		t.Error("Epics directory was not created")
+	// Verify JSONL files exist
+	issuesFile := filepath.Join(beadsDir, "issues.jsonl")
+	if _, err := os.Stat(issuesFile); os.IsNotExist(err) {
+		t.Error("issues.jsonl file was not created")
 	}
 
-	// Verify epic file exists
-	epicFile := filepath.Join(epicsDir, "proj-1.yaml")
-	if _, err := os.Stat(epicFile); os.IsNotExist(err) {
-		t.Error("Epic file proj-1.yaml was not created")
+	epicsFile := filepath.Join(beadsDir, "epics.jsonl")
+	if _, err := os.Stat(epicsFile); os.IsNotExist(err) {
+		t.Error("epics.jsonl file was not created")
 	}
 
-	// Verify issue files exist
-	expectedIssues := []string{"proj-2.yaml", "proj-3.yaml", "proj-4.yaml"}
-	for _, issueFile := range expectedIssues {
-		path := filepath.Join(issuesDir, issueFile)
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			t.Errorf("Issue file %s was not created", issueFile)
-		}
-	}
-
-	// Read and verify content of one issue
-	proj2File := filepath.Join(issuesDir, "proj-2.yaml")
-	content, err := os.ReadFile(proj2File)
+	// Read and verify issues.jsonl content
+	content, err := os.ReadFile(issuesFile)
 	if err != nil {
-		t.Fatalf("Failed to read proj-2.yaml: %v", err)
+		t.Fatalf("Failed to read issues.jsonl: %v", err)
 	}
 
 	contentStr := string(content)
 
-	// Verify key fields are present
+	// Verify key fields are present in JSONL format
 	expectedFields := []string{
-		"id: proj-2",
-		"title: Create login API endpoint",
-		"status: open",
-		"priority: p1",
-		"epic: proj-1",
-		"dependsOn:",
-		"- proj-4",
-		"jiraKey: PROJ-2",
+		`"id":"proj-2"`,
+		`"title":"Create login API endpoint"`,
+		`"status":"open"`,
+		`"priority":"p1"`,
+		`"epic":"proj-1"`,
+		`"dependsOn":["proj-4"]`,
+		`"jiraKey":"PROJ-2"`,
 	}
 
 	for _, field := range expectedFields {
-		if !contains([]string{contentStr}, field) {
-			// Check if field exists in content
-			found := false
-			for _, line := range []string{contentStr} {
-				if containsSubstring(line, field) {
-					found = true
-					break
-				}
-			}
-			if !found {
-				t.Errorf("Expected field '%s' not found in proj-2.yaml.\nContent:\n%s", field, contentStr)
-			}
+		if !containsSubstring(contentStr, field) {
+			t.Errorf("Expected field '%s' not found in issues.jsonl.\nContent:\n%s", field, contentStr)
 		}
 	}
 }
@@ -138,52 +117,62 @@ func TestPipelineEndToEnd(t *testing.T) {
 	// - PROJ-2 depends on PROJ-4
 	// - PROJ-2 and PROJ-3 are linked to epic PROJ-1
 
-	epicsDir := filepath.Join(tmpDir, ".beads", "epics")
-	issuesDir := filepath.Join(tmpDir, ".beads", "issues")
+	beadsDir := filepath.Join(tmpDir, ".beads")
+	issuesFile := filepath.Join(beadsDir, "issues.jsonl")
+	epicsFile := filepath.Join(beadsDir, "epics.jsonl")
 
-	// Count epics
-	epics, err := os.ReadDir(epicsDir)
+	// Read and check epics JSONL
+	epicsContent, err := os.ReadFile(epicsFile)
 	if err != nil {
-		t.Fatalf("Failed to read epics dir: %v", err)
+		t.Fatalf("Failed to read epics.jsonl: %v", err)
 	}
-	if len(epics) != 1 {
-		t.Errorf("Expected 1 epic, got %d", len(epics))
+	epicsStr := string(epicsContent)
+	// Count lines (each line is one epic)
+	epicLines := 0
+	for _, line := range splitLines(epicsStr) {
+		if len(line) > 0 {
+			epicLines++
+		}
+	}
+	if epicLines != 1 {
+		t.Errorf("Expected 1 epic, got %d", epicLines)
 	}
 
-	// Count issues
-	issues, err := os.ReadDir(issuesDir)
+	// Read and check issues JSONL
+	issuesContent, err := os.ReadFile(issuesFile)
 	if err != nil {
-		t.Fatalf("Failed to read issues dir: %v", err)
+		t.Fatalf("Failed to read issues.jsonl: %v", err)
 	}
-	if len(issues) != 3 {
-		t.Errorf("Expected 3 issues, got %d", len(issues))
+	issuesStr := string(issuesContent)
+	// Count lines (each line is one issue)
+	issueLines := 0
+	for _, line := range splitLines(issuesStr) {
+		if len(line) > 0 {
+			issueLines++
+		}
+	}
+	if issueLines != 3 {
+		t.Errorf("Expected 3 issues, got %d", issueLines)
 	}
 
 	// Verify PROJ-2 has correct dependencies and epic link
-	proj2Content, err := os.ReadFile(filepath.Join(issuesDir, "proj-2.yaml"))
-	if err != nil {
-		t.Fatalf("Failed to read proj-2.yaml: %v", err)
+	if !containsSubstring(issuesStr, `"id":"proj-2"`) {
+		t.Error("PROJ-2 should exist in issues")
 	}
-
-	proj2Str := string(proj2Content)
-	if !containsSubstring(proj2Str, "epic: proj-1") {
+	if !containsSubstring(issuesStr, `"epic":"proj-1"`) {
 		t.Error("PROJ-2 should be linked to epic proj-1")
 	}
-	if !containsSubstring(proj2Str, "proj-4") {
+	if !containsSubstring(issuesStr, `"dependsOn":["proj-4"]`) {
 		t.Error("PROJ-2 should depend on proj-4")
 	}
 }
 
 // Helper function to check if a string contains a substring
 func containsSubstring(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) && containsHelper(s, substr))
+	return strings.Contains(s, substr)
 }
 
-func containsHelper(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
+// Helper function to split string into lines
+func splitLines(s string) []string {
+	return strings.Split(strings.TrimSpace(s), "\n")
 }
