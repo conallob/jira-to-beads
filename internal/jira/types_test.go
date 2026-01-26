@@ -193,7 +193,7 @@ func TestJiraTimeEdgeCases(t *testing.T) {
 			t.Fatalf("Failed to unmarshal leap year date: %v", err)
 		}
 		expected := time.Date(2024, 2, 29, 12, 0, 0, 0, time.UTC)
-		if !jt.Time.Equal(expected) {
+		if !jt.Equal(expected) {
 			t.Errorf("Leap year date = %v, want %v", jt.Time, expected)
 		}
 	})
@@ -206,7 +206,7 @@ func TestJiraTimeEdgeCases(t *testing.T) {
 			t.Fatalf("Failed to unmarshal midnight: %v", err)
 		}
 		expected := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
-		if !jt.Time.Equal(expected) {
+		if !jt.Equal(expected) {
 			t.Errorf("Midnight time = %v, want %v", jt.Time, expected)
 		}
 	})
@@ -219,7 +219,7 @@ func TestJiraTimeEdgeCases(t *testing.T) {
 			t.Fatalf("Failed to unmarshal end of day: %v", err)
 		}
 		expected := time.Date(2024, 12, 31, 23, 59, 59, 999000000, time.UTC)
-		if !jt.Time.Equal(expected) {
+		if !jt.Equal(expected) {
 			t.Errorf("End of day time = %v, want %v", jt.Time, expected)
 		}
 	})
