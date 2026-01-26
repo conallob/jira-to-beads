@@ -11,6 +11,13 @@ import (
 	"github.com/conallob/jira-beads-sync/internal/jira"
 )
 
+// Build-time variables injected via ldflags by goreleaser
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	if len(os.Args) < 2 {
 		printUsage()
@@ -71,7 +78,9 @@ func main() {
 			os.Exit(1)
 		}
 	case "version":
-		fmt.Println("jira-beads-sync v0.1.0")
+		fmt.Printf("jira-beads-sync %s\n", version)
+		fmt.Printf("  commit: %s\n", commit)
+		fmt.Printf("  built:  %s\n", date)
 	case "help", "--help", "-h":
 		printUsage()
 	default:
