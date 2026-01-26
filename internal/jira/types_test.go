@@ -135,7 +135,7 @@ func TestJiraTimeUnmarshalJSONInStruct(t *testing.T) {
 				if !ts.Created.Equal(expectedCreated) {
 					t.Errorf("Created time = %v, want %v", ts.Created.Time, expectedCreated)
 				}
-				if !ts.Updated.Time.Equal(expectedUpdated) {
+				if !ts.Updated.Equal(expectedUpdated) {
 					t.Errorf("Updated time = %v, want %v", ts.Updated.Time, expectedUpdated)
 				}
 			},
@@ -145,10 +145,10 @@ func TestJiraTimeUnmarshalJSONInStruct(t *testing.T) {
 			input:   `{"created":"2024-01-01T10:00:00.000+0000","updated":""}`,
 			wantErr: false,
 			check: func(t *testing.T, ts TestStruct) {
-				if ts.Created.Time.IsZero() {
+				if ts.Created.IsZero() {
 					t.Error("Created time should not be zero")
 				}
-				if !ts.Updated.Time.IsZero() {
+				if !ts.Updated.IsZero() {
 					t.Error("Updated time should be zero for empty string")
 				}
 			},
