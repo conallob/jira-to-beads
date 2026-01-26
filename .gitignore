@@ -1,5 +1,5 @@
 # Binaries
-jira-beads-sync
+/jira-beads-sync
 *.exe
 *.exe~
 *.dll
