@@ -1,7 +1,6 @@
 # jira-beads-sync
 
 [![Test and Lint](https://github.com/conallob/jira-beads-sync/actions/workflows/test.yml/badge.svg)](https://github.com/conallob/jira-beads-sync/actions/workflows/test.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/conallob/jira-beads-sync)](https://goreportcard.com/report/github.com/conallob/jira-beads-sync)
 [![License](https://img.shields.io/github/license/conallob/jira-beads-sync)](LICENSE)
 [![codecov](https://codecov.io/gh/conallob/jira-beads-sync/branch/main/graph/badge.svg)](https://codecov.io/gh/conallob/jira-beads-sync)
 [![Release](https://img.shields.io/github/v/release/conallob/jira-beads-sync)](https://github.com/conallob/jira-beads-sync/releases/latest)
